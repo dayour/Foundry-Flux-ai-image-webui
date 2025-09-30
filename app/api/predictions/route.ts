@@ -52,6 +52,15 @@ async function uploadBase64Image(
         const base64String = base64Data.replace(/^data:image\/\w+;base64,/, "");
         const buffer = Buffer.from(base64String, "base64");
 
+        // Log image size for monitoring
+        const sizeKB = (buffer.length / 1024).toFixed(2);
+        console.log(`Base64 image size: ${sizeKB}KB (model: ${model})`);
+
+        // Validate image size (warn if > 2MB)
+        if (buffer.length > 2 * 1024 * 1024) {
+            console.warn(`Large image detected: ${sizeKB}KB - consider implementing compression`);
+        }
+
         // Generate unique filename
         const timestamp = Date.now();
         const uniqueId = nanoid(8);
@@ -63,6 +72,10 @@ async function uploadBase64Image(
             fileBuffer: buffer,
             objectKey: objectKey,
         });
+
+        if (url) {
+            console.log(`Successfully uploaded image to R2: ${objectKey}`);
+        }
 
         return url;
     } catch (error) {
