@@ -120,6 +120,12 @@ To use Azure Flux models (FLUX 1.1 [pro] and FLUX.1 Kontext [pro]):
 - Scalable deployments with autoscaling
 - Unified access with other Azure AI services
 
+**Azure Flux Use Cases:**
+- **Creative Pipeline Acceleration**: Use FLUX 1.1 [pro] for storyboard ideation, then pass frames to Kontext [pro] for surgical tweaks
+- **E-commerce Variant Generation**: Inject product shots and prompts to auto-paint seasonal backdrops while preserving SKU angles
+- **Marketing Automation**: Pair with Azure OpenAI GPT-4o for copy generation and automated A/B testing
+- **Digital Twin Simulation**: Use iterative editing to visualize equipment wear/tear over time in maintenance portals
+
 
 #### 5. Run it
 
