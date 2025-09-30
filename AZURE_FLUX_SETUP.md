@@ -47,13 +47,15 @@ Add the following to your `.env` file:
 
 ```env
 # Azure FLUX 1.1 [pro]
-AZURE_FLUX_11_PRO_ENDPOINT=https://your-endpoint.inference.ml.azure.com/score
+AZURE_FLUX_11_PRO_ENDPOINT=https://your-resource.services.ai.azure.com/openai/deployments/FLUX-1.1-pro/images/generations?api-version=2025-04-01-preview
 AZURE_FLUX_11_PRO_API_KEY=your-api-key-here
 
 # Azure FLUX.1 Kontext [pro]
-AZURE_FLUX_KONTEXT_PRO_ENDPOINT=https://your-endpoint.inference.ml.azure.com/score
+AZURE_FLUX_KONTEXT_PRO_ENDPOINT=https://your-resource.services.ai.azure.com/openai/deployments/FLUX.1-Kontext-pro/images/generations?api-version=2025-04-01-preview
 AZURE_FLUX_KONTEXT_PRO_API_KEY=your-api-key-here
 ```
+
+**Note**: Replace `your-resource` with your actual Azure resource name from Azure AI Foundry.
 
 ### Step 4: Use the Models
 
@@ -63,23 +65,59 @@ Once configured, the Azure Flux models will appear in your model dropdown:
 
 ## API Details
 
+### API Format
+
+The implementation uses the **Azure OpenAI Image Generation API** format:
+
+**Request Format:**
+```json
+{
+  "prompt": "Your image description",
+  "n": 1,
+  "size": "1024x1024",
+  "quality": "hd"
+}
+```
+
+**Response Format:**
+```json
+{
+  "created": 1234567890,
+  "data": [
+    {
+      "url": "https://...",
+      "revised_prompt": "Enhanced prompt"
+    }
+  ]
+}
+```
+
+### Authentication
+
+The API uses the `api-key` header for authentication:
+```javascript
+headers: {
+  "Content-Type": "application/json",
+  "api-key": "your-api-key"
+}
+```
+
 ### Request Parameters
 
 The implementation automatically configures:
-- **Dimensions**: Converted from aspect ratios (1:1, 16:9, 9:16, 3:2, 2:3)
-- **Inference Steps**: 
-  - FLUX 1.1 [pro]: 40 steps (optimized for quality)
-  - FLUX.1 Kontext [pro]: 25 steps (converges quickly)
+- **Size**: Converted from aspect ratios (e.g., 1:1 → "1024x1024")
+- **Quality**: Set to "hd" for FLUX 1.1 [pro] for highest quality output
+- **Number of images (n)**: Set to 1 per request
 
 ### Supported Aspect Ratios
 
-| Ratio | Width | Height | Use Case |
-|-------|-------|--------|----------|
-| 1:1   | 1024  | 1024   | Square images, social media |
-| 16:9  | 1344  | 768    | Landscape, presentations |
-| 9:16  | 768   | 1344   | Portrait, mobile stories |
-| 3:2   | 1216  | 832    | Standard photography |
-| 2:3   | 832   | 1216   | Portrait photography |
+| Ratio | Size (WxH) | Use Case |
+|-------|-----------|----------|
+| 1:1   | 1024×1024 | Square images, social media |
+| 16:9  | 1344×768  | Landscape, presentations |
+| 9:16  | 768×1344  | Portrait, mobile stories |
+| 3:2   | 1216×832  | Standard photography |
+| 2:3   | 832×1216  | Portrait photography |
 
 ## Use Cases
 

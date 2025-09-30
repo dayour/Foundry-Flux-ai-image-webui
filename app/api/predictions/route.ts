@@ -24,38 +24,38 @@ async function callAzureFluxAPI(
     model: string,
     ratio: string
 ) {
-    // Convert ratio to dimensions (Azure expects width/height)
-    const dimensionMap: Record<string, { width: number; height: number }> = {
-        "1:1": { width: 1024, height: 1024 },
-        "16:9": { width: 1344, height: 768 },
-        "9:16": { width: 768, height: 1344 },
-        "3:2": { width: 1216, height: 832 },
-        "2:3": { width: 832, height: 1216 },
+    // Convert ratio to dimensions for Azure OpenAI Image API
+    // Azure OpenAI uses "size" parameter in format "widthxheight"
+    const dimensionMap: Record<string, string> = {
+        "1:1": "1024x1024",
+        "16:9": "1344x768",
+        "9:16": "768x1344",
+        "3:2": "1216x832",
+        "2:3": "832x1216",
     };
 
-    const dimensions = dimensionMap[ratio] || { width: 1024, height: 1024 };
+    const size = dimensionMap[ratio] || "1024x1024";
 
+    // Azure OpenAI Image Generation API format
     const requestBody: any = {
         prompt: prompts,
-        width: dimensions.width,
-        height: dimensions.height,
+        n: 1,
+        size: size,
     };
 
-    // Add model-specific parameters
+    // Add model-specific parameters for FLUX models
+    // Note: These may need adjustment based on actual Azure API support
     if (model === "azure-flux-1.1-pro") {
         // FLUX 1.1 [pro] supports up to 4MP images and has Ultra/Raw modes
-        // Default to 40-50 steps for best quality as per documentation
-        requestBody.num_inference_steps = 40;
-    } else if (model === "azure-flux-kontext-pro") {
-        // FLUX.1 Kontext [pro] for image editing converges in < 30 steps
-        requestBody.num_inference_steps = 25;
+        // quality: "hd" for higher quality output
+        requestBody.quality = "hd";
     }
 
     const response = await fetch(endpoint, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
+            "api-key": apiKey,
         },
         body: JSON.stringify(requestBody),
     });
@@ -102,12 +102,23 @@ export async function POST(request: Request) {
                 ratio
             );
             
+            // Azure OpenAI Image API returns data in format:
+            // { created: timestamp, data: [{ url: "...", revised_prompt: "..." }] }
+            const imageUrl = azureResponse.data?.[0]?.url || 
+                           azureResponse.data?.[0]?.b64_json ||
+                           azureResponse.url ||
+                           azureResponse.image;
+            
+            if (!imageUrl) {
+                console.error("Azure response does not contain image URL:", azureResponse);
+                throw new Error("No image URL in Azure response");
+            }
+            
             // Create a prediction object compatible with the existing flow
-            // Azure returns the image URL directly or in a result/output field
             prediction = {
-                id: azureResponse.id || Date.now().toString(),
+                id: azureResponse.created?.toString() || Date.now().toString(),
                 status: "succeeded",
-                output: azureResponse.image || azureResponse.output || azureResponse.result || azureResponse.url,
+                output: imageUrl,
                 dataId: Date.now().toString(), // For tracking
             };
         } catch (error: any) {
