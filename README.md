@@ -8,7 +8,7 @@ visit it ☞: [fluximage.org](https://fluximage.org)
 ## Features
 
 - AI Image Generation: Generate high-quality images based on text prompts using the Flux.1 AI model.
-- Azure Flux Support: Enterprise-grade image generation with FLUX 1.1 [pro] and FLUX.1 Kontext [pro] on Azure AI Foundry.
+- Azure Flux Support: Enterprise-grade image generation with FLUX 1.1 [pro] and FLUX.1 Kontext [pro] on Azure AI Foundry. See [Azure Flux Setup Guide](./AZURE_FLUX_SETUP.md) for details.
 - Prompt Generator: Improve and refine your prompts to get the best results from the AI.
 - i18n Support: Full internationalization support for multilingual audiences.
 - Responsive Design: Built with TailwindCSS to ensure a responsive and clean user interface on all devices.
