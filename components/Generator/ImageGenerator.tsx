@@ -77,6 +77,8 @@ const ImageGenerator = ({ user, generated }: any) => {
         { label: "flux.1 schnell", value: "schnell", selected: true },
         { label: "flux.1 dev", value: "dev" },
         { label: "flux.1 pro", value: "pro" },
+        { label: "flux 1.1 [pro] (Azure)", value: "azure-flux-1.1-pro" },
+        { label: "flux.1 kontext [pro] (Azure)", value: "azure-flux-kontext-pro" },
     ]);
     const [isPublic, setIsPublic] = useState(true);
     const {
