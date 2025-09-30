@@ -8,6 +8,7 @@ visit it ☞: [fluximage.org](https://fluximage.org)
 ## Features
 
 - AI Image Generation: Generate high-quality images based on text prompts using the Flux.1 AI model.
+- Azure Flux Support: Enterprise-grade image generation with FLUX 1.1 [pro] and FLUX.1 Kontext [pro] on Azure AI Foundry.
 - Prompt Generator: Improve and refine your prompts to get the best results from the AI.
 - i18n Support: Full internationalization support for multilingual audiences.
 - Responsive Design: Built with TailwindCSS to ensure a responsive and clean user interface on all devices.
@@ -73,6 +74,13 @@ REPLICATE_API_URL=https://api.replicate.com/v1/predictions
 REPLICATE_API_TOKEN=
 REPLICATE_API_VERSION=
 
+# Azure Flux Configuration (Optional)
+# Get these from Azure AI Foundry after deploying FLUX models
+# See: https://ai.azure.com/
+AZURE_FLUX_11_PRO_ENDPOINT=
+AZURE_FLUX_11_PRO_API_KEY=
+AZURE_FLUX_KONTEXT_PRO_ENDPOINT=
+AZURE_FLUX_KONTEXT_PRO_API_KEY=
 
 R2_ACCOUNT_ID=
 R2_BUCKET=
@@ -90,6 +98,27 @@ POSTGRES_URL_NON_POOLING="postgres://postgres:xxxxx@localhost:5432/localdb"
 POSTGRES_URL_NO_SSL="postgres://postgres:xxxxx@localhost:5432/localdb"
 POSTGRES_USER="postgres"
 ```
+
+### Azure Flux Configuration (Optional)
+
+To use Azure Flux models (FLUX 1.1 [pro] and FLUX.1 Kontext [pro]):
+
+1. Sign up for an [Azure account](https://azure.microsoft.com/en-us/pricing/purchase-options/pay-as-you-go) if you don't have one
+2. Go to [Azure AI Foundry](https://ai.azure.com/)
+3. Search for "FLUX-1.1-pro" or "FLUX.1-Kontext-pro" in the model catalog
+4. Deploy the model and get your API endpoint and key
+5. Add the endpoint and key to your `.env` file:
+   - `AZURE_FLUX_11_PRO_ENDPOINT`: Your FLUX 1.1 [pro] endpoint URL
+   - `AZURE_FLUX_11_PRO_API_KEY`: Your FLUX 1.1 [pro] API key
+   - `AZURE_FLUX_KONTEXT_PRO_ENDPOINT`: Your FLUX.1 Kontext [pro] endpoint URL
+   - `AZURE_FLUX_KONTEXT_PRO_API_KEY`: Your FLUX.1 Kontext [pro] API key
+
+**Benefits of Azure Flux:**
+- Enterprise-grade security and compliance
+- 6-8× faster than other diffusion-based editors
+- Built-in content safety filters
+- Scalable deployments with autoscaling
+- Unified access with other Azure AI services
 
 
 #### 5. Run it
