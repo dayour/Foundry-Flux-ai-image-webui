@@ -158,16 +158,29 @@ AZURE_FLUX_KONTEXT_PRO_API_KEY=<from environment>
 
 ### For Production Use
 
-1. **Handle Base64 Images**: The application code in `app/api/predictions/route.ts` already handles base64 data via the `b64_json` field check (lines 107-109).
+1. **Handle Base64 Images**: ✅ **IMPLEMENTED** - The application code in `app/api/predictions/route.ts` now properly handles base64 data:
+   - Detects base64 data in the `b64_json` field
+   - Converts base64 to Buffer
+   - Uploads to Cloudflare R2 storage
+   - Returns R2 URL for use in the application
 
-2. **Image Size Considerations**: 
-   - FLUX 1.1 [pro]: ~480KB base64 data
-   - FLUX.1 Kontext [pro]: ~1.4MB base64 data
-   - Consider implementing image compression or storage if needed
+2. **Image Size Considerations**: ✅ **IMPLEMENTED**
+   - FLUX 1.1 [pro]: ~480KB base64 data → uploaded directly to R2
+   - FLUX.1 Kontext [pro]: ~1.4MB base64 data → uploaded directly to R2
+   - Images are stored efficiently with unique identifiers
+   - Future enhancement: Can add compression if storage costs become a concern
 
-3. **Error Handling**: Both models successfully passed content safety filters. Consider handling cases where images might be filtered.
+3. **Error Handling**: ✅ **IMPLEMENTED** - Content safety filter handling added:
+   - Checks all content filter categories (sexual, violence, hate, self_harm)
+   - Detects profanity and jailbreak attempts
+   - Returns appropriate error messages when content is filtered
+   - Logs warnings for monitoring
 
-4. **Rate Limiting**: Monitor API usage and implement appropriate rate limiting to manage costs.
+4. **Rate Limiting**: ✅ **IMPLEMENTED** - Basic rate limiting implemented:
+   - 10 requests per minute per user
+   - In-memory tracking with automatic reset
+   - Returns 429 status code when limit exceeded
+   - Can be adjusted based on actual usage patterns
 
 ## Verification Checklist
 
