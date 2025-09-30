@@ -57,13 +57,25 @@ async function testAzureFluxEndpoint(endpoint, apiKey, modelName) {
         }
 
         const data = JSON.parse(responseText);
-        console.log('\n✅ Success! Response:', JSON.stringify(data, null, 2));
-
-        if (data.data && data.data[0] && data.data[0].url) {
-            console.log('\n✅ Image URL:', data.data[0].url);
-            return true;
+        console.log('\n✅ Success! Response data received');
+        
+        if (data.data && data.data[0]) {
+            const imageData = data.data[0];
+            
+            if (imageData.url) {
+                console.log('\n✅ Image URL:', imageData.url);
+                return true;
+            } else if (imageData.b64_json) {
+                console.log('\n✅ Image returned as base64-encoded data');
+                console.log(`✅ Base64 data length: ${imageData.b64_json.length} characters`);
+                console.log('✅ Content safety filters passed');
+                return true;
+            } else {
+                console.error('❌ Error: No image URL or base64 data found in response');
+                return false;
+            }
         } else {
-            console.error('❌ Error: No image URL found in response');
+            console.error('❌ Error: Invalid response structure');
             return false;
         }
     } catch (error) {

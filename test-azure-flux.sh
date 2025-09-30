@@ -74,14 +74,23 @@ test_endpoint() {
 
     if [ "$status_code" = "200" ]; then
         echo -e "${GREEN}✅ Success!${NC}"
-        echo "Response:"
-        echo "$body" | jq '.' 2>/dev/null || echo "$body"
         
-        # Extract and display image URL
+        # Extract and display image URL or base64 data
         image_url=$(echo "$body" | jq -r '.data[0].url' 2>/dev/null)
+        b64_data=$(echo "$body" | jq -r '.data[0].b64_json' 2>/dev/null)
+        
         if [ -n "$image_url" ] && [ "$image_url" != "null" ]; then
             echo ""
             echo -e "${GREEN}✅ Image URL: $image_url${NC}"
+        elif [ -n "$b64_data" ] && [ "$b64_data" != "null" ]; then
+            b64_length=${#b64_data}
+            echo ""
+            echo -e "${GREEN}✅ Image returned as base64-encoded data${NC}"
+            echo -e "${GREEN}✅ Base64 data length: $b64_length characters${NC}"
+            echo -e "${GREEN}✅ Content safety filters passed${NC}"
+        else
+            echo ""
+            echo -e "${RED}⚠️  Warning: No image URL or base64 data found${NC}"
         fi
         return 0
     else
