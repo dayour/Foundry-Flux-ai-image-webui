@@ -108,10 +108,12 @@ To use Azure Flux models (FLUX 1.1 [pro] and FLUX.1 Kontext [pro]):
 3. Search for "FLUX-1.1-pro" or "FLUX.1-Kontext-pro" in the model catalog
 4. Deploy the model and get your API endpoint and key
 5. Add the endpoint and key to your `.env` file:
-   - `AZURE_FLUX_11_PRO_ENDPOINT`: Your FLUX 1.1 [pro] endpoint URL
+   - `AZURE_FLUX_11_PRO_ENDPOINT`: Your FLUX 1.1 [pro] endpoint URL (format: `https://your-resource.services.ai.azure.com/openai/deployments/FLUX-1.1-pro/images/generations?api-version=2025-04-01-preview`)
    - `AZURE_FLUX_11_PRO_API_KEY`: Your FLUX 1.1 [pro] API key
-   - `AZURE_FLUX_KONTEXT_PRO_ENDPOINT`: Your FLUX.1 Kontext [pro] endpoint URL
+   - `AZURE_FLUX_KONTEXT_PRO_ENDPOINT`: Your FLUX.1 Kontext [pro] endpoint URL (format: `https://your-resource.services.ai.azure.com/openai/deployments/FLUX.1-Kontext-pro/images/generations?api-version=2025-04-01-preview`)
    - `AZURE_FLUX_KONTEXT_PRO_API_KEY`: Your FLUX.1 Kontext [pro] API key
+
+For more details, see [Azure Flux Setup Guide](./AZURE_FLUX_SETUP.md) and [Azure Flux Integration Guide](./AZURE_FLUX_INTEGRATION.md).
 
 **Benefits of Azure Flux:**
 - Enterprise-grade security and compliance
