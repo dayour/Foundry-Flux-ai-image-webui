@@ -42,38 +42,62 @@ export function usePrediction() {
             toast.error(err.message);
             return Promise.reject({ message: err.message });
         }
-        let prediction = await response1.json();
-        const pid = prediction.dataId;
+        const responsePayload = await response1.json();
+        let prediction = responsePayload?.prediction ?? responsePayload;
+
+        if (!prediction || typeof prediction !== "object") {
+            const message = "Invalid prediction response";
+            toast.error(message);
+            return Promise.reject({ message });
+        }
+
+        const pid = prediction.dataId || prediction.id;
 
         if (response1.status !== 201) {
-            toast.error(prediction.detail);
-            setError(prediction.detail);
-            return Promise.reject({ message: prediction.detail });
+            const detail = prediction.detail || prediction.error || "Failed to generate image";
+            toast.error(detail);
+            setError(detail);
+            return Promise.reject({ message: detail });
         }
 
         setPrediction(prediction);
+
+        if (prediction.status === "succeeded" && prediction.output) {
+            const imageUrl = typeof prediction.output === "string" ? prediction.output : prediction?.output?.[0];
+            if (imageUrl) {
+                setGeneration({ url: imageUrl });
+                return Promise.resolve(imageUrl);
+            }
+        }
 
         while (
             prediction.status !== "succeeded" &&
             prediction.status !== "failed"
         ) {
+            if (!prediction.id) {
+                break;
+            }
             await sleep(5000);
             const response2 = await fetch(
-                "/api/predictions/" + prediction.id + `?pid=${pid}`,
+                "/api/predictions/" + prediction.id + `?pid=${pid ?? ""}`,
                 { cache: "no-store" }
             );
             prediction = await response2.json();
             if (response2.status !== 200) {
-                toast.error(prediction.detail);
-                setError(prediction.detail);
-                return Promise.reject({ message: prediction.detail });
+                const detail = prediction.detail || prediction.error || "Failed to fetch prediction";
+                toast.error(detail);
+                setError(detail);
+                return Promise.reject({ message: detail });
             }
             // console.log({ prediction });
             console.log("loading...");
 
             if (prediction.output) {
-                setGeneration({ url: typeof prediction.output === "string" ? prediction.output : prediction?.output[0] });
-                return Promise.resolve(typeof prediction.output === "string" ? prediction.output : prediction?.output[0]);
+                const imageUrl = typeof prediction.output === "string" ? prediction.output : prediction?.output?.[0];
+                if (imageUrl) {
+                    setGeneration({ url: imageUrl });
+                    return Promise.resolve(imageUrl);
+                }
             }
             setPrediction(prediction);
         }

@@ -5,6 +5,7 @@ import React, {
     useState,
     createContext,
     useContext,
+    useCallback,
 } from "react";
 // import {
 //     IconArrowNarrowLeft,
@@ -139,6 +140,8 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                         className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
                         onClick={scrollLeft}
                         disabled={!canScrollLeft}
+                        aria-label="Scroll left to see previous cards"
+                        title="Scroll left"
                     >
                         <ArrowLeft className="h-6 w-6 text-gray-500" />
                     </button>
@@ -146,6 +149,8 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                         className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
                         onClick={scrollRight}
                         disabled={!canScrollRight}
+                        aria-label="Scroll right to see more cards"
+                        title="Scroll right"
                     >
                         <ArrowRight className="h-6 w-6 text-gray-500" />
                     </button>
@@ -168,6 +173,11 @@ export const Card = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const { onCardClose, currentIndex } = useContext(CarouselContext);
 
+    const handleClose = useCallback(() => {
+        setOpen(false);
+        onCardClose(index);
+    }, [onCardClose, index]);
+
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
             if (event.key === "Escape") {
@@ -183,17 +193,12 @@ export const Card = ({
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [open]);
+    }, [open, handleClose]);
 
     useOutsideClick(containerRef, () => handleClose());
 
     const handleOpen = () => {
         setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        onCardClose(index);
     };
 
     return (
@@ -218,6 +223,8 @@ export const Card = ({
                             <button
                                 className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
                                 onClick={handleClose}
+                                aria-label="Close card details"
+                                title="Close"
                             >
                                 <X className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
                             </button>

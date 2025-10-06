@@ -36,7 +36,13 @@ body {
 
 @layer utilities {
   .text-balance {
-    text-wrap: balance;
+    /* Fallback for older browsers */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    /* Modern browsers with text-wrap support - only applied when supported */
+    @supports (text-wrap: balance) {
+      text-wrap: balance;
+    }
   }
 }
 

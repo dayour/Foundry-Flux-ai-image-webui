@@ -1,0 +1,186 @@
+/* ReactGridGallery Component Styles */
+
+/* Gallery item container styles */
+.gallery-item {
+  position: relative;
+  background: #eee;
+  padding: 0px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Dynamic margin styles - using CSS custom properties for dynamic values */
+.gallery-item-margin-1 { margin: 1px; }
+.gallery-item-margin-2 { margin: 2px; }
+.gallery-item-margin-3 { margin: 3px; }
+.gallery-item-margin-4 { margin: 4px; }
+.gallery-item-margin-5 { margin: 5px; }
+
+/* Tile icon bar styles */
+.tile-icon-bar {
+  pointer-events: none;
+  opacity: 1;
+  position: absolute;
+  height: 36px;
+  width: 100%;
+}
+
+/* Bottom bar for tags */
+.bottom-bar {
+  padding: 2px;
+  pointer-events: none;
+  position: absolute;
+  min-height: 0px;
+  max-height: 160px;
+  width: 100%;
+  bottom: 0px;
+  overflow: hidden;
+}
+
+/* Tag item container */
+.tag-item-block {
+  display: inline-block;
+  cursor: pointer;
+  pointer-events: visible;
+  margin: 2px;
+}
+
+/* Tag item styling */
+.tag-item {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: 600;
+  line-height: 1;
+  color: yellow;
+  background: rgba(0,0,0,0.65);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+
+/* Custom overlay styles */
+.custom-overlay {
+  pointer-events: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 2;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.custom-overlay-visible {
+  opacity: 1;
+}
+
+.custom-overlay-hidden {
+  opacity: 0;
+}
+
+/* Tile overlay styles */
+.tile-overlay {
+  pointer-events: none;
+  opacity: 1;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.tile-overlay-visible {
+  background: linear-gradient(to bottom,rgba(0,0,0,0.26),transparent 56px,transparent);
+}
+
+.tile-overlay-hidden {
+  background: none;
+}
+
+/* Tile viewport styles */
+.tile-viewport {
+  overflow: hidden;
+}
+
+/* Tile description styles */
+.tile-description {
+  background: white;
+  width: 100%;
+  margin: 0;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  overflow: hidden;
+}
+
+/* Dynamic thumbnail styles - using CSS custom properties for complex calculations */
+.thumbnail {
+  cursor: pointer;
+  max-width: none;
+}
+
+.thumbnail-dynamic {
+  width: var(--thumbnail-width, auto);
+  height: var(--thumbnail-height, auto);
+  margin-left: var(--thumbnail-margin-left, 0);
+  margin-top: var(--thumbnail-margin-top, 0);
+  transform: var(--thumbnail-transform, none);
+}
+
+/* Dynamic margin fallback for large values */
+.gallery-item-dynamic {
+  margin: var(--dynamic-margin, 0px);
+}
+
+/* Dynamic tile viewport - Note: These styles will be applied via CSS custom properties 
+   which are set dynamically. This approach is preferred over inline styles for 
+   truly dynamic values that cannot be pre-computed. */
+.tile-viewport-dynamic {
+  width: var(--viewport-width, auto);
+  height: var(--viewport-height, auto);
+}
+
+.tile-viewport-with-background {
+  background: var(--nano-background, none);
+  background-size: cover;
+  background-position: center center;
+}
+
+.tile-viewport-selected {
+  width: var(--selected-viewport-width, auto);
+  height: var(--selected-viewport-height, auto);
+  margin: var(--selected-margin, 0);
+}
+
+/* Check button styles */
+.checkButton {
+  background: none;
+  float: left;
+  width: 36px;
+  height: 36px;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  pointer-events: visible;
+}
+
+.checkButtonVisible {
+  visibility: visible;
+}
+
+.checkButtonHidden {
+  visibility: hidden;
+}
+
+/* Circle styles for selected state */
+.circleVisible {
+  display: block;
+}
+
+.circleHidden {
+  display: none;
+}
+
+/* Gallery container styles */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+}

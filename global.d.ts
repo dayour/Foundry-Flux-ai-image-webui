@@ -1,4 +1,3 @@
-declare module 'bcrypt';
 declare module "mime-types";
 declare module "next-intl";
 

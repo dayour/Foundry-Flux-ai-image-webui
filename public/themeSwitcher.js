@@ -1,6 +1,6 @@
 const HSThemeAppearance = {
     init() {
-        const defaultTheme = 'default'
+        const defaultTheme = 'dark'
         let theme = localStorage.getItem('hs_theme') || defaultTheme
 
         if (document.querySelector('html').classList.contains('dark')) return

@@ -8,7 +8,7 @@ import FooterSection from "@/components/Footer/FooterSection";
 import { getTranslations } from "next-intl/server";
 import ImageGenerator from "@/components/Generator/ImageGenerator";
 import { languages, siteConfig } from "@/config/site";
-import TestimonialsExploreSection from "@/components/Testimonials/TestimonialsExploreSection";
+
 import { Gallery } from "react-grid-gallery";
 import { getGenerationList } from "@/services/handleImage";
 import ImageGallery from "@/components/Generator/ImageGallery";
@@ -106,7 +106,7 @@ export default async function ExplorePage({
 
             {/* <Gallery images={generationList} /> */}
             {/* <ImageGenerator user={session?.user} /> */}
-            <TestimonialsExploreSection />
+
 
             <FooterSection />
             <Toaster position="top-center" richColors />

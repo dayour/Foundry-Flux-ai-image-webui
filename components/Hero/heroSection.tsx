@@ -54,13 +54,16 @@ const HeroSection: FC = () => {
                             </div>
 
                             {/* Main Image */}
-                            {/* <div className="mt-10 h-96 max-w-5xl mx-auto sm:h-[480px] rounded-xl overflow-hidden"> */}
+                            <div className="mt-10 max-w-5xl mx-auto rounded-xl overflow-hidden">
                                 <img
-                                    src="/main-image.webp"
-                                    className="w-full object-cover mx-auto my-10 max-w-5xl rounded-xl"
-                                    alt="Flux.1 AI Image Generator"
+                                    src="/autogen-hero-image.webp"
+                                    className="w-full object-cover rounded-xl"
+                                    alt="Autogen Design AI image generator preview"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
                                 />
-                            {/* </div> */}
+                            </div>
                         </div>
                     </div>
                 </div>

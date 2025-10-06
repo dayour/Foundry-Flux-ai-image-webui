@@ -51,7 +51,7 @@ export type StyleFunctionContext<T extends Image = Image> = {
 };
 
 export type StyleFunction<T extends Image = Image> = (
-  context: StyleFunctionContext
+  context: StyleFunctionContext<T>
 ) => CSSProperties;
 
 export type StyleProp<T extends Image = Image> =
@@ -62,12 +62,14 @@ export interface ImageProps<T extends ImageExtended = ImageExtended> {
   item: T;
   index: number;
   margin: number;
+  /** optional alt prop forwarded from parent to satisfy accessibility linters */
+  alt?: string;
   isSelectable: boolean;
   onClick: (index: number, event: MouseEvent<HTMLElement>) => void;
   onSelect: (index: number, event: MouseEvent<HTMLElement>) => void;
-  tileViewportStyle: StyleProp<T>;
-  thumbnailStyle: StyleProp<T>;
-  tagStyle: StyleProp<T>;
+  tileViewportStyle?: StyleProp<T>;
+  thumbnailStyle?: StyleProp<T>;
+  tagStyle?: StyleProp<T>;
   height?: number;
   thumbnailImageComponent?: ComponentType<ThumbnailImageProps>;
 }

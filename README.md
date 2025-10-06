@@ -1,25 +1,24 @@
-# Flux AI Image Generator
+# DARBOT Autogen Design
 
-Flux Image AI is an AI-powered image generation platform built using Next.js and the Flux.1 AI model. The platform allows users to create high-quality images from text prompts quickly and easily. It also features a prompt generator to help optimize image creation prompts.
+Autogen Design is an AI-powered image generation platform built with Next.js that transforms text prompts into high-quality visuals. It features a prompt generator to help optimize your inputs and supports enterprise model deployments.
 
-visit it ☞: [fluximage.org](https://fluximage.org)
+visit it ☞: [autogen.design](https://autogen.design)
 
 
 ## Features
 
-- AI Image Generation: Generate high-quality images based on text prompts using the Flux.1 AI model.
+- AI Image Generation: Generate high-quality images from text prompts using modern generative models (FLUX.1 variants supported).
 - Azure Flux Support: Enterprise-grade image generation with FLUX 1.1 [pro] and FLUX.1 Kontext [pro] on Azure AI Foundry. See [Azure Flux Setup Guide](./AZURE_FLUX_SETUP.md) for details.
 - Prompt Generator: Improve and refine your prompts to get the best results from the AI.
 - i18n Support: Full internationalization support for multilingual audiences.
 - Responsive Design: Built with TailwindCSS to ensure a responsive and clean user interface on all devices.
-- High Performance: Hosted on Vercel with Cloudflare CDN for fast, secure, and reliable performance.
+
 
 ## Tech Stack
 
 Framework: Next.js
 Hosting: Vercel
-Domain: Dynadot
-CDN: Cloudflare
+Domain: Cypherdyne
 Styling: TailwindCSS
 Template: Radix UI & Preline UI
 
@@ -28,35 +27,35 @@ Template: Radix UI & Preline UI
 
 Deploy on Vercel (Don't forget to setup env)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/volume988/flux-ai-image-webui.git&project-name=flux-ai-image&repository-name=flux-ai-image)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/dayour/Foundry-Flux-ai-image-webui.git&project-name=autogen-design&repository-name=autogen-design)
 
-#### 1. Clone project
+### 1. Clone project
 
+```bash
+git clone https://github.com/darbotlabs/
 ```
-git clone https://github.com/volume988/flux-ai-image-webui.git
-```
 
-#### 2. Install dependencies
+### 2. Install dependencies
 
-```
+```bash
 cd imagetoprompt-ai
 pnpm i
 ```
 
-#### 3. Init database
+### 3. Init database
 
 create your database use [local postgres](https://wiki.postgresql.org/wiki/Homebrew) or [supabase](https://supabase.com/)
 
 create tables and migrate:
 
-```
+```bash
 npx prisma generate
 prisma migrate dev
 ```
 
-#### 4. copy .env.example and rename it to .env
+### 4. copy .env.example and rename it to .env
 
-```
+```env
 GOOGLE_ID=
 GOOGLE_SECRET=
 NODE_ENV=development
@@ -116,6 +115,7 @@ To use Azure Flux models (FLUX 1.1 [pro] and FLUX.1 Kontext [pro]):
 For more details, see [Azure Flux Setup Guide](./AZURE_FLUX_SETUP.md) and [Azure Flux Integration Guide](./AZURE_FLUX_INTEGRATION.md).
 
 **Benefits of Azure Flux:**
+
 - Enterprise-grade security and compliance
 - 6-8× faster than other diffusion-based editors
 - Built-in content safety filters
@@ -123,28 +123,18 @@ For more details, see [Azure Flux Setup Guide](./AZURE_FLUX_SETUP.md) and [Azure
 - Unified access with other Azure AI services
 
 **Azure Flux Use Cases:**
+
 - **Creative Pipeline Acceleration**: Use FLUX 1.1 [pro] for storyboard ideation, then pass frames to Kontext [pro] for surgical tweaks
 - **E-commerce Variant Generation**: Inject product shots and prompts to auto-paint seasonal backdrops while preserving SKU angles
 - **Marketing Automation**: Pair with Azure OpenAI GPT-4o for copy generation and automated A/B testing
 - **Digital Twin Simulation**: Use iterative editing to visualize equipment wear/tear over time in maintenance portals
 
+### 5. Run it
 
-#### 5. Run it
-
-```
+```bash
 pnpm dev
 ```
 
-#### 6. open http://localhost:3000 for preview
+### 6. Open [http://localhost:3000](http://localhost:3000) for preview
 
-![fluximage.org](https://pub-f5fc00c4ca7b445d95004c53d4b77e82.r2.dev/images/%E6%88%AA%E5%B1%8F2024-08-16%2011.42.05.png "Flux AI Image Generator")
-
-
-
-## Link Me
-
-Twitter: [https://x.com/candytools118](https://x.com/candytools118)
-
-if this project is helpful to you, buy me a coffee.
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/wuyasong)
+![autogen.design](https://pub-f5fc00c4ca7b445d95004c53d4b77e82.r2.dev/images/%E6%88%AA%E5%B1%8F2024-08-16%2011.42.05.png "Autogen Design")

@@ -32,10 +32,10 @@ const GeneratedList = ({ generatedList }: any) => {
                     {t("generatedTitle")}
                 </h2>
                 {!generatedList ||
-                    (!generatedList.length && (
+                        (!generatedList.length && (
                         <div className="text-center py-10 px-4 sm:px-6 lg:px-8">
                             <p className="mt-3 text-gray-600 dark:text-neutral-400">
-                                empty generated liveportrait
+                                No generated items yet
                             </p>
                             <div className="mt-5 flex flex-col justify-center items-center gap-2 sm:flex-row sm:gap-3">
                                 <a

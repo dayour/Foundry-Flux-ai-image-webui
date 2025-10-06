@@ -2,15 +2,11 @@ import { insertGeneration } from "@/models/generation";
 import { getUserInfo, updateUserInfo } from "@/models/user";
 import to from "await-to-js";
 import { NextResponse } from "next/server";
-import Replicate from "replicate";
-import { uploadFile } from "@/lib/s3";
+import { defaultStorageService } from "@/lib/storage";
 import { nanoid } from "nanoid";
+import { getModelById } from "@/lib/modelsConfig";
 // import { Client } from "@gradio/client";
 // import to from "await-to-js";
-
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
-});
 
 async function getFileBlob(url: string) {
     const response = await fetch(url);
@@ -64,17 +60,17 @@ async function uploadBase64Image(
         // Generate unique filename
         const timestamp = Date.now();
         const uniqueId = nanoid(8);
-        const objectKey = `generated/${userId}/${model}-${timestamp}-${uniqueId}.jpg`;
+        const objectKey = `${userId}/${model}-${timestamp}-${uniqueId}.jpg`;
 
-        // Upload to R2
-        const url = await uploadFile({
+        // Upload using the storage service (supports local and R2)
+        const url = await defaultStorageService.uploadFile({
             FileName: "image.jpg",
             fileBuffer: buffer,
             objectKey: objectKey,
         });
 
         if (url) {
-            console.log(`Successfully uploaded image to R2: ${objectKey}`);
+            console.log(`Successfully uploaded image: ${objectKey}`);
         }
 
         return url;
@@ -120,7 +116,8 @@ async function callAzureFluxAPI(
     apiKey: string,
     prompts: string,
     model: string,
-    ratio: string
+    ratio: string,
+    quality?: string
 ) {
     // Convert ratio to dimensions for Azure OpenAI Image API
     // Azure OpenAI uses "size" parameter in format "widthxheight"
@@ -143,7 +140,9 @@ async function callAzureFluxAPI(
 
     // Add model-specific parameters for FLUX models
     // Note: These may need adjustment based on actual Azure API support
-    if (model === "azure-flux-1.1-pro") {
+    if (quality) {
+        requestBody.quality = quality;
+    } else if (model === "azure-flux-1.1-pro") {
         // FLUX 1.1 [pro] supports up to 4MP images and has Ultra/Raw modes
         // quality: "hd" for higher quality output
         requestBody.quality = "hd";
@@ -171,44 +170,54 @@ export async function POST(request: Request) {
 
     let prediction: any = null;
 
-    // Handle Azure Flux models
-    if (model === "azure-flux-1.1-pro" || model === "azure-flux-kontext-pro") {
-        const azureEndpoint =
-            model === "azure-flux-1.1-pro"
-                ? process.env.AZURE_FLUX_11_PRO_ENDPOINT
-                : process.env.AZURE_FLUX_KONTEXT_PRO_ENDPOINT;
-        const azureApiKey =
-            model === "azure-flux-1.1-pro"
-                ? process.env.AZURE_FLUX_11_PRO_API_KEY
-                : process.env.AZURE_FLUX_KONTEXT_PRO_API_KEY;
+    const modelConfig = await getModelById(model);
 
-        if (!azureEndpoint || !azureApiKey) {
-            return NextResponse.json(
-                {
-                    error: "Azure Flux API endpoint or key not configured",
-                },
-                { status: 500 }
-            );
-        }
+    if (!modelConfig || !modelConfig.enabled) {
+        return NextResponse.json(
+            {
+                error: "Requested model is not available",
+            },
+            { status: 400 }
+        );
+    }
 
-        // Check rate limit
-        const userId = user?.id || 'anonymous';
-        if (!checkRateLimit(userId)) {
-            return NextResponse.json(
-                {
-                    error: "Rate limit exceeded. Please wait before making more requests.",
-                },
-                { status: 429 }
-            );
-        }
+    if (modelConfig.provider !== "azure") {
+        return NextResponse.json(
+            {
+                error: "Only Azure models are supported",
+            },
+            { status: 400 }
+        );
+    }
 
-        try {
+    if (!modelConfig.endpoint || !modelConfig.apiKey) {
+        return NextResponse.json(
+            {
+                error: "Model endpoint or API key is missing",
+            },
+            { status: 500 }
+        );
+    }
+
+    // Check rate limit
+    const userId = user?.id || "anonymous";
+    if (!checkRateLimit(userId)) {
+        return NextResponse.json(
+            {
+                error: "Rate limit exceeded. Please wait before making more requests.",
+            },
+            { status: 429 }
+        );
+    }
+
+    try {
             const azureResponse = await callAzureFluxAPI(
-                azureEndpoint,
-                azureApiKey,
+                modelConfig.endpoint,
+                modelConfig.apiKey,
                 prompts,
                 model,
-                ratio
+                ratio,
+                modelConfig.quality
             );
 
             // Check content safety filters
@@ -253,25 +262,38 @@ export async function POST(request: Request) {
                 output: finalImageUrl,
                 dataId: Date.now().toString(), // For tracking
             };
-        } catch (error: any) {
-            console.error("Azure Flux API error:", error);
-            return NextResponse.json(
-                {
-                    error: error.message,
-                },
-                { status: 500 }
+
+            const generationPayload = {
+                prompt: prompts || "",
+                aspect_ratio: ratio || "1:1",
+                isPublic: typeof isPublic === "boolean" ? isPublic : true,
+                model,
+                generation: finalImageUrl,
+                imgUrl: finalImageUrl,
+                predictionId: prediction.id,
+                userId: userId !== "anonymous" ? userId : null,
+            };
+
+            const [generationError, generationRecord] = await to(
+                insertGeneration(generationPayload)
             );
-        }
-    } else {
-        // handle replicate / fal ... api for non-Azure models
+
+            if (generationError) {
+                console.error("Failed to persist generation record:", generationError);
+            } else if (generationRecord?.id) {
+                prediction.dataId = generationRecord.id;
+            }
+    } catch (error: any) {
+        console.error("Azure Flux API error:", error);
+        return NextResponse.json(
+            {
+                error: error.message,
+            },
+            { status: 500 }
+        );
     }
 
     console.log("prediction:", prediction);
 
-    return NextResponse.json(
-        {
-            prediction,
-        },
-        { status: 201 }
-    );
+    return NextResponse.json(prediction, { status: 201 });
 }

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "flux:diagnostics": "node scripts/azure/flux-diagnostics.js",
+    "flux:diagnostics:remote": "node scripts/azure/flux-diagnostics.js --remote-only",
+    "flux:diagnostics:local": "node scripts/azure/flux-diagnostics.js --local-only",
+    "dev:create-account": "node scripts/dev/create-test-account.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.582.0",
@@ -24,7 +28,7 @@
     "@types/mdx": "^2.0.13",
     "await-to-js": "^3.0.0",
     "axios": "^1.7.2",
-    "bcrypt": "^5.1.1",
+  "bcryptjs": "^2.4.3",
     "clipboard": "^2.0.11",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
@@ -36,7 +40,7 @@
     "lucide-react": "^0.379.0",
     "mime-types": "^2.1.35",
     "nanoid": "^5.0.7",
-    "next": "14.2.3",
+    "next": "^14.2.33",
     "next-auth": "^4.24.7",
     "next-intl": "^3.15.0",
     "preline": "^2.3.0",
@@ -58,12 +62,13 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "dotenv": "^17.2.3",
-    "eslint": "^8",
+    "eslint": "^8.57.1",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
+    "typescript": "<5.5.0"
+  },
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
 }

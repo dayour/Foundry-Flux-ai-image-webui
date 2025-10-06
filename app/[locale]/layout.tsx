@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: any) {
     const t = await getTranslations("Home");
 
     return {
-        title: "Flux AI Image Generator - Free Image Generator | fluximage.org",
+    title: "Autogen Design - Free Image Generator | autogen.design",
         description: t("layoutDescription"),
         icons: {
             icon: "/favicon.ico",

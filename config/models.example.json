@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "id": "azure-flux-1.1-pro",
+      "label": "flux 1.1 [pro] (Azure)",
+      "provider": "azure",
+      "endpoint": "${AZURE_FLUX_11_PRO_ENDPOINT}",
+      "apiKey": "${AZURE_FLUX_11_PRO_API_KEY}",
+      "quality": "hd",
+      "enabled": true,
+      "description": "Azure FLUX 1.1 pro text-to-image generation"
+    },
+    {
+      "id": "azure-flux-kontext-pro",
+      "label": "flux.1 kontext [pro] (Azure)",
+      "provider": "azure",
+      "endpoint": "${AZURE_FLUX_KONTEXT_PRO_ENDPOINT}",
+      "apiKey": "${AZURE_FLUX_KONTEXT_PRO_API_KEY}",
+      "enabled": true,
+      "description": "Azure FLUX.1 Kontext pro image editing"
+    }
+  ]
+}

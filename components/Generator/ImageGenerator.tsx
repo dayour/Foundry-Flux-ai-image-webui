@@ -4,10 +4,10 @@
 "use client";
 
 import {
-    FC,
     useCallback,
     useEffect,
     useLayoutEffect,
+    useMemo,
     useRef,
     useState,
 } from "react";
@@ -18,12 +18,16 @@ import { usePrediction } from "@/hooks/usePrediction";
 import { Spinner } from "@/components/Spinner";
 import LoginDialog from "@/components/LoginBox/LoginDialog";
 import { cn, getMachineId, onDownload, outOfFree } from "@/lib/utils";
+import styles from "./ImageGenerator.module.css";
 // import * as Select from "@radix-ui/react-select";
 // import { useClipboard } from "@/hooks/useClipboard";
 import { useTranslations } from "next-intl";
 import Zoom, { Controlled as ControlledZoom } from "react-medium-image-zoom";
 import 'react-medium-image-zoom/dist/styles.css'
 import GeneratedList from "@/components/Generated/GeneratedList";
+import StorageSwitcher from "@/components/Storage/StorageSwitcher";
+import ModelSettingsDialog from "./ModelSettingsDialog";
+import type { GeneratorModelOption } from "./types";
 import {
     CircleHelp,
     CircleX,
@@ -31,6 +35,7 @@ import {
     Image,
     ImageIcon,
     List,
+    Settings,
     Upload,
     Video,
     VideoIcon,
@@ -73,13 +78,10 @@ const ImageGenerator = ({ user, generated }: any) => {
             // disabled: user?.credits <= 1,
         },
     ]);
-    const [model, setModel] = useState([
-        { label: "flux.1 schnell", value: "schnell", selected: true },
-        { label: "flux.1 dev", value: "dev" },
-        { label: "flux.1 pro", value: "pro" },
-        { label: "flux 1.1 [pro] (Azure)", value: "azure-flux-1.1-pro" },
-        { label: "flux.1 kontext [pro] (Azure)", value: "azure-flux-kontext-pro" },
-    ]);
+        const [models, setModels] = useState<GeneratorModelOption[]>([]);
+        const [selectedModelId, setSelectedModelId] = useState<string>("");
+        const [loadingModels, setLoadingModels] = useState(false);
+        const [settingsOpen, setSettingsOpen] = useState(false);
     const [isPublic, setIsPublic] = useState(true);
     const {
         error,
@@ -94,6 +96,64 @@ const ImageGenerator = ({ user, generated }: any) => {
             setElementHeight(leftElementRef.current.clientHeight);
         }
     }, []);
+
+    const refreshModels = useCallback(async () => {
+        setLoadingModels(true);
+        try {
+            const response = await fetch("/api/models");
+            const data = await response.json();
+
+            if (!data?.success) {
+                throw new Error(data?.error || "Failed to load models");
+            }
+
+            const fetched: GeneratorModelOption[] = (data.models ?? []).map(
+                (item: any) => ({
+                    id: item.id,
+                    label: item.label,
+                    description: item.description,
+                    quality: item.quality,
+                    enabled: item.enabled,
+                    endpoint: item.endpoint,
+                    apiKey: item.apiKey,
+                    provider: item.provider,
+                    createdAt: item.createdAt,
+                    updatedAt: item.updatedAt,
+                })
+            );
+
+            setModels(fetched);
+            setSelectedModelId((prev) => {
+                if (
+                    prev &&
+                    fetched.some(
+                        (model) => model.id === prev && model.enabled
+                    )
+                ) {
+                    return prev;
+                }
+
+                const firstEnabled = fetched.find((model) => model.enabled);
+                return firstEnabled?.id ?? "";
+            });
+        } catch (error) {
+            console.error("Failed to fetch models", error);
+            toast.error("Failed to load models. Please check configuration.");
+            setModels([]);
+            setSelectedModelId("");
+        } finally {
+            setLoadingModels(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        refreshModels();
+    }, [refreshModels]);
+
+    const enabledModels = useMemo(
+        () => models.filter((model) => model.enabled),
+        [models]
+    );
 
     // handle Generative
     const handleGenerative = async () => {
@@ -113,10 +173,16 @@ const ImageGenerator = ({ user, generated }: any) => {
         setGenerating(true);
         try {
             // todo: -----
+            if (!selectedModelId) {
+                toast.error("No models available. Please configure one first.");
+                setGenerating(false);
+                return;
+            }
+
             await handleSubmit({
                 prompts: textPrompts,
                 ratio: aspectRatio.find((item) => item.checked)?.ratio,
-                model: model.find((item) => item.selected)?.value,
+                model: selectedModelId,
                 isPublic,
                 user,
             });
@@ -139,11 +205,11 @@ const ImageGenerator = ({ user, generated }: any) => {
         }
 
         let url = "";
-        switch (social) {
+                switch (social) {
             case "x":
                 url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
                     process.env.NEXTAUTH_URL || ""
-                )}&text=Check%20this%20image%20generated%20with%20AI&hashtags=FluxImage%2CAI`;
+                )}&text=Check%20this%20image%20generated%20with%20Autogen%20Design&hashtags=AutogenDesign%2CAI`;
                 break;
             case "linkedin":
                 url = `https://www.linkedin.com/sharing/share-offsite?url=${encodeURIComponent(
@@ -187,7 +253,7 @@ const ImageGenerator = ({ user, generated }: any) => {
         }
         // window.open(generation.url, "_blank");
         onDownload(generation.url, onDownloaded)
-        // onDownload(`fluximageai/generated/CQHex-1a.jpg`)
+    // legacy example: onDownload(`autogen/generated/CQHex-1a.jpg`)
     };
 
     const handleMaximize = (shouldZoom: boolean) => {
@@ -279,38 +345,62 @@ const ImageGenerator = ({ user, generated }: any) => {
 
                         {/* form section */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="prompts"
-                                className="inline-block text-sm font-medium text-gray-800 mt-2.5 dark:text-neutral-200"
-                            >
-                                {t("formModelsLabel")}
-                            </label>
+                            <div className="flex items-center justify-between">
+                                <label
+                                    htmlFor="ai-model-selector"
+                                    className="inline-block text-sm font-medium text-gray-800 mt-2.5 dark:text-neutral-200"
+                                >
+                                    {t("formModelsLabel")}
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setSettingsOpen(true)}
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                                    aria-label="Open advanced model settings"
+                                >
+                                    <Settings className="h-4 w-4" />
+                                    <span>Advanced</span>
+                                </button>
+                            </div>
 
                             <div className="grid sm:grid-cols-5 gap-2">
                                 <select
+                                    id="ai-model-selector"
                                     className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                                    value={model.find((m) => m.selected)?.value}
-                                    onChange={(e: any) => {
-                                        const currentModel: any = model.find(
-                                            (m) => m.value === e.target.value
-                                        );
-                                        model.map((r) => (r.selected = false));
-                                        currentModel.selected = true;
-                                        setModel([...model]);
-                                    }}
+                                    value={selectedModelId}
+                                    aria-label="Select AI model for image generation"
+                                    title="Choose an AI model"
+                                    onChange={(event) =>
+                                        setSelectedModelId(event.target.value)
+                                    }
+                                    disabled={
+                                        loadingModels || enabledModels.length === 0
+                                    }
                                 >
-                                    {model.map((item: any) => (
-                                        <option
-                                            key={item.value}
-                                            value={item.value}
-                                            disabled={item.disable}
-                                            // selected={item.selected}
-                                        >
+                                    {enabledModels.length === 0 ? (
+                                        <option value="" disabled>
+                                            {loadingModels
+                                                ? "Loading models…"
+                                                : "No models available"}
+                                        </option>
+                                    ) : null}
+                                    {enabledModels.map((item) => (
+                                        <option key={item.id} value={item.id}>
                                             {item.label}
                                         </option>
                                     ))}
                                 </select>
                             </div>
+                            {loadingModels ? (
+                                <p className="text-xs text-gray-500 dark:text-neutral-400">
+                                    Loading models…
+                                </p>
+                            ) : null}
+                            {!loadingModels && enabledModels.length === 0 ? (
+                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                    No enabled models found. Add one via advanced settings.
+                                </p>
+                            ) : null}
                         </div>
 
                         {/* form section */}
@@ -338,6 +428,13 @@ const ImageGenerator = ({ user, generated }: any) => {
                                 >
                                     switch
                                 </label>
+                            </div>
+                        </div>
+
+                        {/* Storage Switcher Section */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <StorageSwitcher />
                             </div>
                         </div>
 
@@ -369,8 +466,12 @@ const ImageGenerator = ({ user, generated }: any) => {
                         {/* Generate Button End */}
                     </div>
                     <div
-                        className="mt-5 sm:mt-10 lg:mt-0 lg:col-span-5"
-                        style={{ maxHeight: elementHeight + "px" }}
+                        className={`mt-5 sm:mt-10 lg:mt-0 lg:col-span-5 ${styles.dynamicContainer}`}
+                        ref={(el) => {
+                            if (el) {
+                                el.style.setProperty('--element-height', `${elementHeight}px`);
+                            }
+                        }}
                     >
                         <div className="space-y-2 flex flex-col h-full overflow-hidden">
                             <label
@@ -391,6 +492,8 @@ const ImageGenerator = ({ user, generated }: any) => {
                                         >
                                             <img
                                                 src={generation.url}
+                                                alt={generation.prompt || "Generated AI image"}
+                                                title={generation.prompt || "Generated AI image"}
                                                 // className="object-contain h-48 w-96"
                                                 className="object-contain"
                                                 // width="1024"
@@ -447,6 +550,15 @@ const ImageGenerator = ({ user, generated }: any) => {
             <LoginDialog open={openLogin} setOpen={setOpenLogin}>
                 <div></div>
             </LoginDialog>
+            <ModelSettingsDialog
+                open={settingsOpen}
+                onOpenChange={setSettingsOpen}
+                models={models}
+                loading={loadingModels}
+                onRefresh={refreshModels}
+                onSelectModel={setSelectedModelId}
+                currentModelId={selectedModelId}
+            />
         </>
     );
 };

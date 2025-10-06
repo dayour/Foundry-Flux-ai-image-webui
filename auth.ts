@@ -6,7 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { getServerSession, type NextAuthOptions } from "next-auth";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 
 const providers: any[] = [
   GithubProvider({

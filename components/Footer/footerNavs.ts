@@ -33,26 +33,7 @@ const Navs: any[] = [
             },
         ],
     },
-    {
-        label: "Friends",
-        items: [
-            {
-                href: "https://fluximage.org",
-                title: "Flux Image AI",
-                content: "Flux Image AI",
-            },
-            {
-                href: "https://liveportraitai.com",
-                title: "LivePortrait AI Animation Generator",
-                content: "LivePortrait AI",
-            },
-            {
-                href: "https://imagetoprompt.club",
-                title: "Image To Prompt",
-                content: "Image To Prompt",
-            },
-        ],
-    },
+    // Friends section removed per rebranding
 ];
 
 export default Navs;

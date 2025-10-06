@@ -1,25 +1,53 @@
-import { NextResponse } from "next/server";
-import Replicate from "replicate";
 import { unstable_noStore as noStore } from "next/cache";
+import { NextResponse } from "next/server";
 
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+import { queryGeneration } from "@/models/generation";
 
-// Prevent Next.js / Vercel from caching responses
-// See https://github.com/replicate/replicate-javascript/issues/136#issuecomment-1728053102
-replicate.fetch = (url, options) => {
-  return fetch(url, { cache: "no-store", ...options });
-};
-
-export async function GET(request: Request, { params }: any) {
+export async function GET(request: Request, { params }: { params: { id?: string } }) {
   noStore();
-  let prediction: any
-  // handle replicate / fal ... api
+
+  const predictionId = params?.id;
+  const searchParams = new URL(request.url).searchParams;
+  const dataId = searchParams.get("pid");
+
+  if (!predictionId) {
+    return NextResponse.json(
+      { error: "Prediction id is required" },
+      { status: 400 }
+    );
+  }
+
+  if (!dataId) {
+    return NextResponse.json(
+      {
+        id: predictionId,
+        status: "processing",
+      },
+      { status: 200 }
+    );
+  }
+
+  const generation = await queryGeneration({ id: dataId });
+
+  if (!generation?.id) {
+    return NextResponse.json(
+      {
+        id: predictionId,
+        dataId,
+        status: "processing",
+      },
+      { status: 200 }
+    );
+  }
+
+  const outputUrl = generation.generation || generation.imgUrl || null;
 
   return NextResponse.json(
     {
-      prediction,
+      id: predictionId,
+      dataId: generation.id,
+      status: outputUrl ? "succeeded" : "processing",
+      output: outputUrl,
     },
     { status: 200 }
   );
