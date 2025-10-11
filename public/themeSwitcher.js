@@ -1,7 +1,18 @@
 const HSThemeAppearance = {
     init() {
-        const defaultTheme = 'default'
-        let theme = localStorage.getItem('hs_theme') || defaultTheme
+        const defaultTheme = 'dark'
+
+        // Prefer the canonical 'theme' key if present (values: 'dark'|'light'|absent)
+        // Fallback to legacy 'hs_theme' when 'theme' is not set.
+        let theme = localStorage.getItem('theme')
+        if (!theme) {
+            const hs = localStorage.getItem('hs_theme')
+            // map hs_theme values to canonical ones
+            if (hs === 'dark') theme = 'dark'
+            else if (hs === 'default') theme = 'light'
+            else if (hs === 'auto') theme = null
+            else theme = defaultTheme
+        }
 
         if (document.querySelector('html').classList.contains('dark')) return
         this.setAppearance(theme)
@@ -17,7 +28,21 @@ const HSThemeAppearance = {
         const $resetStylesEl = this._resetStylesOnLoad()
 
         if (saveInStore) {
-            localStorage.setItem('hs_theme', theme)
+            // Write both canonical and legacy keys so other scripts remain compatible
+            if (theme === 'dark') {
+                localStorage.setItem('theme', 'dark')
+                localStorage.setItem('hs_theme', 'dark')
+            } else if (theme === 'light' || theme === 'default') {
+                localStorage.setItem('theme', 'light')
+                localStorage.setItem('hs_theme', 'default')
+            } else if (theme === 'auto') {
+                // For auto, prefer removing canonical key so other scripts can detect
+                localStorage.removeItem('theme')
+                localStorage.setItem('hs_theme', 'auto')
+            } else {
+                // fallback
+                localStorage.setItem('hs_theme', theme)
+            }
         }
 
         if (theme === 'auto') {
@@ -28,7 +53,12 @@ const HSThemeAppearance = {
         document.querySelector('html').classList.remove('default')
         document.querySelector('html').classList.remove('auto')
 
-        document.querySelector('html').classList.add(this.getOriginalAppearance())
+        // Add 'dark' or remove it depending on computed theme
+        if (this.getOriginalAppearance() === 'dark' || theme === 'dark') {
+            document.querySelector('html').classList.add('dark')
+        } else {
+            document.querySelector('html').classList.remove('dark')
+        }
 
         setTimeout(() => {
             $resetStylesEl.remove()
