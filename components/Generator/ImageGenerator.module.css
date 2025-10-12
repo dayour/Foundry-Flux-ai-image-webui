@@ -1,0 +1,35 @@
+/* ImageGenerator CSS Module */
+
+/* Dynamic container height - using data attributes to avoid inline styles */
+.dynamicContainer {
+  /* Default max height */
+  max-height: 500px;
+}
+
+/* Use data attributes for different height ranges to avoid inline styles */
+.dynamicContainer[data-height="small"] {
+  max-height: 400px;
+}
+
+.dynamicContainer[data-height="medium"] {
+  max-height: 600px;
+}
+
+.dynamicContainer[data-height="large"] {
+  max-height: 800px;
+}
+
+.dynamicContainer[data-height="xlarge"] {
+  max-height: 1000px;
+}
+
+/* Fallback: If we must use CSS custom properties (last resort) */
+.dynamicContainerCustom {
+  max-height: var(--element-height, 500px);
+}
+
+/* Ensure images inside the dynamic container respect the measured height */
+.constrainedImg {
+  max-height: var(--element-height, 500px);
+  width: auto;
+}

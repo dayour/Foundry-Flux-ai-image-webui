@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import { signOut } from "next-auth/react";
 
@@ -16,11 +16,15 @@ export default function UserDropdown({ user }: any) {
         className="hs-dropdown-toggle w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:text-neutral-400 dark:hover:bg-neutral-700"
       >
         {user.image ? (
-          <img
-            className="inline-block size-[38px] rounded-lg ring-2 ring-white dark:ring-neutral-900"
-            src={user.image}
-            alt={user.name + " image | " + siteConfig.name}
-          />
+            <div className="relative w-8 h-8">
+              <Image
+                src={user.image || '/avatar-placeholder.png'}
+                alt={user.name || 'User avatar'}
+                fill
+                className="rounded-full object-cover"
+                unoptimized
+              />
+            </div>
         ) : (
           <span className="inline-block size-8 bg-gray-100 rounded-full overflow-hidden">
             <svg

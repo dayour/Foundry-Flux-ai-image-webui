@@ -12,7 +12,15 @@ export default function LocaleSwitcher() {
   return (
     <>
       <div className="hs-dropdown relative inline-flex z-10">
-        <button id="hs-dropdown-default" className="hs-dropdown-toggle py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-xl border border-gray-200 text-black hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:hover:bg-white/10 dark:text-white dark:hover:text-white">
+        <button
+          id="hs-dropdown-default"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="hs-dropdown-default-menu"
+          aria-label="Change language"
+          className="hs-dropdown-toggle inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 focus-visible:shadow-focus-ring"
+        >
           <svg
             className="flex-shrink-0 size-3.5"
             xmlns="http://www.w3.org/2000/svg"
@@ -32,13 +40,19 @@ export default function LocaleSwitcher() {
           </svg>
           {locales[0]?.label}
         </button>
-        <div className="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg p-2 mt-2 dark:bg-neutral-800 dark:border dark:border-neutral-700 dark:divide-neutral-700 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full" aria-labelledby="hs-dropdown-default">
+        <div
+          id="hs-dropdown-default-menu"
+          className="hs-dropdown-menu mt-2 hidden min-w-56 rounded-lg border border-white/15 bg-midnight-950/95 p-2 text-sm text-white/80 shadow-[0_18px_48px_rgba(3,0,10,0.55)] backdrop-blur transition-[opacity,margin] duration hs-dropdown-open:opacity-100"
+          aria-labelledby="hs-dropdown-default"
+        >
         {languages.map((item: any) => (
             <Link
               key={item.lang}
-              className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:bg-neutral-700"
+              id={`locale-${item.lang}`}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 focus-visible:shadow-focus-ring"
               href={pathname}
               locale={item.lang}
+              aria-current={item.lang === currentLocale ? "true" : undefined}
             >
               {item.label}
             </Link>

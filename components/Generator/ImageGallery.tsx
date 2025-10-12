@@ -65,6 +65,12 @@ const ImageGallery = ({
     return (
         <>
             <section className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pb-10 lg:pb-16">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="sr-only">Gallery</h2>
+                    <div className="text-sm text-gray-600 dark:text-neutral-400">
+                        Showing {Math.max(1, (pageNo - 1) * pageSize + 1)} - {Math.min(total, pageNo * pageSize)} of {total} images
+                    </div>
+                </div>
                 <Gallery
                     images={imageList}
                     // thumbnailImageComponent={ImageComponent}

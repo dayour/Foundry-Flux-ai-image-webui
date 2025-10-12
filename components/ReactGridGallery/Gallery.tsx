@@ -3,7 +3,7 @@ import { Image } from "./Image";
 import { useContainerWidth } from "./useContainerWidth";
 import { buildLayoutFlat } from "./buildLayout";
 import { Image as ImageInterface, GalleryProps } from "./types";
-import * as styles from "./styles";
+import styles from "./ReactGridGallery.module.css";
 
 export const Gallery = <T extends ImageInterface>({
   images,
@@ -42,11 +42,14 @@ export const Gallery = <T extends ImageInterface>({
 
   return (
     <div id={id} className="ReactGridGallery" ref={containerRef}>
-      <div style={styles.gallery}>
+      <div className={styles.gallery}>
         {thumbnails.map((item, index) => (
+          // eslint-disable-next-line jsx-a11y/alt-text
           <Image
             key={item.key || index}
-            item={item}
+            // Ensure alt is always defined (empty string for decorative images)
+            item={{ ...item, alt: item.alt ?? "" }}
+            alt={item.alt ?? ""}
             index={index}
             margin={margin}
             height={rowHeight}

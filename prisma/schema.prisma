@@ -1,19 +1,19 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Account {
   id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
+  userId             String
   type               String
   provider           String
-  providerAccountId  String  @map("provider_account_id")
+  providerAccountId  String
   refresh_token      String?
   access_token       String?
   expires_at         Int?
@@ -31,8 +31,8 @@ model Account {
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
+  sessionToken String   @unique
+  userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -40,18 +40,19 @@ model Session {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  password      String?
-  email         String?      @unique
-  emailVerified DateTime?    @map("email_verified")
-  image         String?
-  credits       Int          @default(5)
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
-  accounts      Account[]
-  sessions      Session[]
-  generation    Generation[]
+  id                  String               @id @default(cuid())
+  name                String?
+  password            String?
+  email               String?              @unique
+  emailVerified       DateTime?
+  image               String?
+  credits             Int                  @default(5)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  accounts            Account[]
+  sessions            Session[]
+  generation          Generation[]
+  engineeringDiagrams EngineeringDiagram[]
 
   @@map("user")
 }
@@ -67,20 +68,46 @@ model VerificationToken {
 }
 
 model Generation {
-  id           String   @id @default(cuid())
-  imgUrl       String?  @map("img_url")
-  // videoUrl     String   @map("video_url")
-  prompt       String   @default("")
-  aspect_ratio String?  @default("1:1")
-  isPublic     Boolean? @default(true) @map("is_public")
-  generation   String?
-  model        String?
-  predictionId String?  @default("") @map("prediction_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  userId       String?
-  width        String?  @default("")
-  height       String?  @default("")
-  user         User?    @relation(fields: [userId], references: [id])
+  id              String   @id @default(cuid())
+  imgUrl          String?
+  prompt          String   @default("")
+  aspect_ratio    String?  @default("1:1")
+  isPublic        Boolean? @default(true)
+  generation      String?
+  model           String?
+  predictionId    String?  @default("")
+  createdAt       DateTime @default(now())
+  userId          String?
+  width           String?  @default("")
+  height          String?  @default("")
+  variationIndex  Int?     @default(0)
+  totalVariations Int?     @default(1)
+  user            User?    @relation(fields: [userId], references: [id])
 
   @@map("generation")
+}
+
+model EngineeringDiagram {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  type          String
+  category      String
+  description   String
+  elements      String?
+  annotations   String?
+  config        String
+  imageUrl      String
+  svgUrl        String?
+  dxfUrl        String?
+  pdfUrl        String?
+  version       Int      @default(1)
+  tags          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([category])
 }

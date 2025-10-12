@@ -136,8 +136,10 @@ This project has comprehensive Azure Flux integration. Key points:
 
 ### Testing
 
-- **Test Scripts:** Use `test-azure-flux.js` (Node.js) or `test-azure-flux.sh` (Bash) to test Azure Flux integration
-- **Manual Testing:** Follow guidelines in `TESTING_GUIDE.md`
+- **Diagnostics Script:** `pnpm flux:diagnostics` (runs Azure endpoint checks + local helper validations)
+  - Remote only: `pnpm flux:diagnostics:remote`
+  - Local helpers only: `pnpm flux:diagnostics:local`
+- **Manual Testing:** Follow the walkthrough in `docs/TESTING_GUIDE.md`
 - **No Unit Tests:** Currently, there are no automated unit tests configured. Manual testing is the primary validation method.
 
 ### Common Patterns
@@ -205,7 +207,7 @@ This project has comprehensive Azure Flux integration. Key points:
 
 ## Links and Resources
 
-- **Production Site:** https://fluximage.org
+-- **Production Site:** https://autogen.design
 - **Azure AI Foundry:** https://ai.azure.com/
 - **Replicate API:** https://replicate.com/
 - **Next.js Documentation:** https://nextjs.org/docs
@@ -214,7 +216,7 @@ This project has comprehensive Azure Flux integration. Key points:
 ## Support and Contact
 
 - **Twitter:** [@candytools118](https://x.com/candytools118)
-- **Email:** support@fluximage.org
+-- **Email:** support@autogen.design
 - **Issues:** Open GitHub issues for bugs and feature requests
 
 ## Notes for AI Assistants

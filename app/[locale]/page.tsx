@@ -1,19 +1,14 @@
 // import { getServerAuthSession } from "@/auth";
-import CTASection from "@/components/CTA/CTASection";
-import FAQSection from "@/components/FAQ/FAQSection";
+// import CTASection from "@/components/CTA/CTASection";
 import FeatureSection from "@/components/Feature/FeatureSection";
 import FooterSection from "@/components/Footer/FooterSection";
 import HeroSection from "@/components/Hero/heroSection";
 import HowItWorks from "@/components/How/HowItWorks";
 import { Toaster } from "sonner";
 import { getTranslations } from "next-intl/server";
-import TestimonialsSection from "@/components/Testimonials/TestimonialsSection";
 
-import TechnologySection from "@/components/Technology/TechnologySection";
-import CarouselSection from "@/components/Carousel/CarouselSection";
+
 import { languages, siteConfig } from "@/config/site";
-import { getHomeGallery } from "@/services/handleImage";
-import to from "await-to-js";
 
 export async function generateMetadata({ params }: any) {
     const t = await getTranslations("Home");
@@ -43,48 +38,12 @@ export async function generateMetadata({ params }: any) {
 export default async function Home() {
     // const session: any = await getServerAuthSession();
     // const t = await getTranslations('Home');
-    const [err, res] = await to(
-        getHomeGallery([
-            "clzqha18o000hf7epmcy36ota",
-            "clztis2wr0000dos009045eim",
-            "clzstbogb00043pc51b6e5r4e",
-            // "clzsta5kg00033pc543hpvr0h",
-            // "clzst8hh100023pc56ev2s2gm",
-            "clzre9vjb0008688297jwhatc",
-
-            // "clzuozryv000014lcj7o0ggty",
-            // "clzu34g4x0000uuf38k5260td",
-            // "clztj3148000fjjlswmc6q7wj",
-            // "clztj1wcr000ejjlslsqogjrf",
-            // "clztj0onn000djjlsey8f3e1f",
-            // "clztis2wr0000dos009045eim",
-            // "clztil6va000cjjlsvr5dg0hr",
-            // "clzti8va1000ajjls5zx6yc3a",
-            // "clzti7f740009jjlshu4fn82w",
-            // "clzti44970008jjlsjcmrcai3",
-            // "clzti1sx40007jjls06mlv6k0",
-        ])
-    );
-
-    if (err) {
-        console.error(err)
-    }
-
-
-    const gallery = res?.generationList || []
-
-    // console.info("gallery:", gallery);
-
     return (
         <main className="pt-4 relative z-50">
             <HeroSection />
             <FeatureSection />
             <HowItWorks />
-            <CarouselSection gallery={gallery} />
-            <TestimonialsSection />
-            <TechnologySection />
-            <CTASection />
-            <FAQSection />
+            {/* <CTASection /> */}
             <FooterSection />
             <Toaster position="top-center" richColors />
         </main>

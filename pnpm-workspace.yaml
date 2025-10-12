@@ -1,0 +1,8 @@
+ignoredBuiltDependencies: []
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bufferutil
+  - msw
+  - prisma

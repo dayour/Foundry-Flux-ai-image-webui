@@ -13,16 +13,15 @@ export default createMiddleware({
 export const config = {
   matcher: [
     // Enable a redirect to a matching locale at the root
-    // "/",
+    "/",
 
     // Set a cookie to remember the previous locale for
     // all requests that have a locale prefix
-    // '/(de|en)/:path*',
+    "/(en|de|es|fr|it|ja|ko|pt|ru|zh)/:path*",
 
     // Enable redirects that add missing locales
     // (e.g. `/pathnames` -> `/en/pathnames`)
-    // "/((?!_next|_vercel|.*\\..*).*)",
-
-    "/((?!api|_next|.*\\..*).*)",
+    // Exclude API routes, Next.js internals, and static files (images, fonts, etc.)
+    "/((?!api|_next/static|_next/image|favicon\\.ico|favicon\\.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf|eot)).*)",
   ],
 };

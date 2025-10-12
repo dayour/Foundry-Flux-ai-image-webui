@@ -1,6 +1,6 @@
 export const navigation = [
   { title: "Home", href: "/" },
-  { title: "FAQ", href: "/#FAQ" },
   { title: "Generation", href: "/ai-image-generator" },
+  { title: "Engineering", href: "/engineering" },
   { title: "Explore", href: "/explore-image" },
 ];

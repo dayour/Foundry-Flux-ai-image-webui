@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 const CTASection = () => {
   const t = useTranslations("Home");
@@ -11,7 +11,9 @@ const CTASection = () => {
     <>
     <section className="bg-white dark:bg-neutral-900">
         <div className="max-w-[85rem] mx-auto gap-8 items-center py-8 px-4 sm:px-6 lg:px-8 xl:gap-16 md:grid md:grid-cols-2 sm:py-16">
-            <img className="w-full h-[420px] object-cover rounded-lg" src="/sub-image-1.png" alt="flux.1 schnell AI image" />
+            <div className="relative w-full h-[420px]">
+              <Image src="/sub-image-1.png" alt="flux.1 schnell AI image" fill className="object-cover rounded-lg" unoptimized />
+            </div>
             {/* <img className="w-full dark:hidden" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg" alt="dashboard image" /> */}
             {/* <img className="w-full hidden dark:block" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup-dark.svg" alt="dashboard image" /> */}
             <div className="mt-4 md:mt-0">

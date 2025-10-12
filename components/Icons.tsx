@@ -12,7 +12,7 @@ export const Icons: any = {
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 120.97999572753906 100"
-                className="w-6 h-6 mr-2"
+                className="w-8 h-8 mr-2 flex-shrink-0"
             >
                 <path
                     fill="#3d3d6b"

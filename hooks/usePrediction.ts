@@ -1,95 +1,216 @@
 import to from "await-to-js";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export function usePrediction() {
-    const [generation, setGeneration] = useState<any>(null);
-    const [prediction, setPrediction] = useState<any>(null);
-    const [generatedList, setGeneratedList] = useState<any[]>([]);
-    const [error, setError] = useState<any>(null);
+export type PredictionStatus = "queued" | "starting" | "processing" | "succeeded" | "failed" | "canceled";
 
-    // useEffect(() => {
-    //   console.log("-----------------------------------------")
-    //   console.log("prediction:", prediction)
-    //   console.log("error:", error)
-    //   console.log("-----------------------------------------")
-    // }, [prediction, error])
+export interface PredictionResponse {
+    id?: string;
+    dataId?: string;
+    status?: PredictionStatus;
+    output?: string | string[];
+    detail?: string;
+    error?: string;
+    [key: string]: unknown;
+}
 
-    function resetState() {
-        setPrediction(null);
-        setGeneration(null);
-        setGeneratedList([]);
+export interface GenerationResult {
+    id?: string;
+    url: string;
+    prompt?: string;
+    status: PredictionStatus;
+}
+
+export interface PredictionRequest {
+    prompts: string;
+    ratio?: string;
+    model: string;
+    isPublic?: boolean;
+    user?: Record<string, unknown> | null;
+    options?: Record<string, unknown>;
+}
+
+const normalizePredictionResponse = (payload: unknown): PredictionResponse | null => {
+    if (!payload || typeof payload !== "object") {
+        return null;
     }
 
-    const handleSubmit = async (params: any) => {
+    const record = payload as Record<string, unknown>;
+    const nested = record.prediction;
+    if (nested && typeof nested === "object") {
+        return normalizePredictionResponse(nested);
+    }
+
+    return record as PredictionResponse;
+};
+
+const extractImageUrl = (value: PredictionResponse): string | null => {
+    const { output } = value;
+    if (typeof output === "string") {
+        return output;
+    }
+    if (Array.isArray(output)) {
+        const first = output.find((item): item is string => typeof item === "string");
+        return first ?? null;
+    }
+    return null;
+};
+
+const extractAllImageUrls = (value: PredictionResponse): string[] => {
+    const { output } = value;
+    if (typeof output === "string") {
+        // Support comma-separated URLs for backward compatibility
+        return output.split(",").map((url) => url.trim()).filter(Boolean);
+    }
+    if (Array.isArray(output)) {
+        return output.filter((item): item is string => typeof item === "string");
+    }
+    return [];
+};
+
+const parseErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    if (typeof error === "string") {
+        return error;
+    }
+    return fallback;
+};
+
+export function usePrediction() {
+    const [generations, setGenerations] = useState<GenerationResult[]>([]);
+    const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
+    const [generatedList, setGeneratedList] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [statusTrail, setStatusTrail] = useState<PredictionStatus[]>([]);
+
+    const resetState = () => {
+        setPrediction(null);
+        setGenerations([]);
+        setGeneratedList([]);
+        setError(null);
+        setStatusTrail([]);
+    };
+
+    const pushStatus = (status?: PredictionStatus) => {
+        if (!status) {
+            return;
+        }
+        setStatusTrail((prev) => {
+            if (prev[prev.length - 1] === status) {
+                return prev;
+            }
+            return [...prev, status];
+        });
+    };
+
+    const handleSubmit = async (params: PredictionRequest) => {
         resetState();
-        const [err, response1] = await to(
+        const [rawError, response] = await to<Response>(
             fetch("/api/predictions", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    ...params,
-                }),
+                body: JSON.stringify(params),
             })
         );
 
-        if (err) {
-            console.error("fetch predictions error", err.message);
-            toast.error(err.message);
-            return Promise.reject({ message: err.message });
-        }
-        let prediction = await response1.json();
-        const pid = prediction.dataId;
-
-        if (response1.status !== 201) {
-            toast.error(prediction.detail);
-            setError(prediction.detail);
-            return Promise.reject({ message: prediction.detail });
+        if (rawError || !response) {
+            const message = parseErrorMessage(rawError, "Failed to submit prediction request");
+            console.error("Prediction submission error", rawError);
+            toast.error(message);
+            return Promise.reject(new Error(message));
         }
 
-        setPrediction(prediction);
+        const payload = normalizePredictionResponse(await response.json());
 
-        while (
-            prediction.status !== "succeeded" &&
-            prediction.status !== "failed"
-        ) {
+        if (!payload) {
+            const message = "Invalid prediction response";
+            toast.error(message);
+            return Promise.reject(new Error(message));
+        }
+
+        const responseId = payload.dataId ?? payload.id ?? undefined;
+
+        if (response.status !== 201) {
+            const detail = payload.detail ?? payload.error ?? "Failed to generate image";
+            toast.error(detail);
+            setError(detail);
+            return Promise.reject(new Error(detail));
+        }
+
+        setPrediction(payload);
+        pushStatus(payload.status);
+
+        const initialUrl = extractImageUrl(payload);
+        if (payload.status === "succeeded" && initialUrl) {
+            const urls = extractAllImageUrls(payload);
+
+            const nextGenerations = urls.map((url, index) => ({
+                id: `${payload.id ?? "prediction"}-${index}`,
+                url,
+                prompt: params.prompts,
+                status: "succeeded" as PredictionStatus,
+            }));
+            setGenerations(nextGenerations);
+            return initialUrl;
+        }
+
+        let current = payload;
+        while (current.status !== "succeeded" && current.status !== "failed") {
+            if (!current.id) {
+                break;
+            }
+
             await sleep(5000);
-            const response2 = await fetch(
-                "/api/predictions/" + prediction.id + `?pid=${pid}`,
+            const statusResponse = await fetch(
+                `/api/predictions/${current.id}?pid=${responseId ?? ""}`,
                 { cache: "no-store" }
             );
-            prediction = await response2.json();
-            if (response2.status !== 200) {
-                toast.error(prediction.detail);
-                setError(prediction.detail);
-                return Promise.reject({ message: prediction.detail });
-            }
-            // console.log({ prediction });
-            console.log("loading...");
+            const statusPayload = normalizePredictionResponse(await statusResponse.json());
 
-            if (prediction.output) {
-                setGeneration({ url: typeof prediction.output === "string" ? prediction.output : prediction?.output[0] });
-                return Promise.resolve(typeof prediction.output === "string" ? prediction.output : prediction?.output[0]);
+            if (!statusPayload) {
+                const message = "Invalid prediction status response";
+                toast.error(message);
+                setError(message);
+                return Promise.reject(new Error(message));
             }
-            setPrediction(prediction);
+
+            if (statusResponse.status !== 200) {
+                const detail = statusPayload.detail ?? statusPayload.error ?? "Failed to fetch prediction status";
+                toast.error(detail);
+                setError(detail);
+                return Promise.reject(new Error(detail));
+            }
+
+            pushStatus(statusPayload.status);
+            const imageUrl = extractImageUrl(statusPayload);
+            if (imageUrl) {
+                const urls = extractAllImageUrls(statusPayload);
+
+                const resolved = urls.map((url, index) => ({
+                    id: `${statusPayload.id ?? "prediction"}-${index}`,
+                    url,
+                    prompt: params.prompts,
+                    status: statusPayload.status ?? "succeeded",
+                }));
+                setGenerations(resolved);
+                return imageUrl;
+            }
+
+            current = statusPayload;
+            setPrediction(statusPayload);
         }
 
-        // --------- mock start ---------
-        // await sleep(2000);
-        // const prediction = {
-        //   output: ["https://replicate.delivery/pbxt/yQkczwuNdb5fZ6P5MBb6ujhkZwgaefDGEAmYHDEse20T8z4MB/R8_LivePortrait_00001.mp4"],
-        // };
+        if (current.status === "failed") {
+            setError(current.error ?? current.detail ?? "Generation failed");
+        }
 
-        // setPrediction({
-        //   output: prediction?.output,
-        // });
-        // setGeneratedList([prediction?.output[0], ...generatedList])
-        // console.info("handleStorage", prediction?.output[0])
-        // --------- mock end ---------
+        return undefined;
     };
 
     return {
@@ -97,7 +218,8 @@ export function usePrediction() {
         error,
         generatedList,
         setGeneratedList,
-        generation,
+        generations,
+        statusTrail,
         handleSubmit,
     };
 }

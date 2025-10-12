@@ -1,3 +1,14 @@
+.hyphenate {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.hero-tilt {
+  transform: perspective(1200px) rotateX(var(--hero-tilt-y, 0deg)) rotateY(calc(var(--hero-tilt-x, 0deg) * -1));
+  transition: transform 0.6s cubic-bezier(0.39, 0.575, 0.565, 1);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,13 +19,23 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+/* Force dark mode by default */
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+  color-scheme: dark;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  /* :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  } */
-  html {
+  html:not(.light) {
     color-scheme: dark;
   }
 }
@@ -25,24 +46,111 @@ html, body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-end-rgb));
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
+  background: radial-gradient(circle at 10% 10%, rgba(138, 100, 255, 0.08), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(123, 215, 255, 0.12), transparent 45%),
+    rgb(var(--background-end-rgb));
 }
 
 @layer utilities {
   .text-balance {
-    text-wrap: balance;
+    /* Fallback for older browsers */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    /* Modern browsers with text-wrap support - only applied when supported */
+    @supports (text-wrap: balance) {
+      text-wrap: balance;
+    }
   }
 }
 
 
 ul, ol, li {
   list-style: none;
+}
+
+/* Constrain unexpectedly large images so they don't break layout
+   This prevents large SVG or image assets from overflowing when
+   markup renders them without sizing classes. */
+main img,
+.dynamicContainer img,
+img[alt*="logo"] {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Global focus styles to improve keyboard visibility */
+*::focus {
+  outline: none;
+}
+
+/* Visible focus ring respecting Tailwind shadow token */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  box-shadow: var(--primary-focus-ring, 0 0 0 3px rgba(124, 215, 255, 0.45));
+  border-radius: 0.75rem;
+}
+
+/* Provide CSS variable fallback for focus ring */
+:root {
+  --primary-focus-ring: 0 0 0 3px rgba(124, 215, 255, 0.45);
+}
+
+/* Sticky translucent navbar support */
+.nav-glass {
+  background: linear-gradient(180deg, rgba(8, 3, 21, 0.82), rgba(5, 1, 14, 0.68));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(124, 215, 255, 0.12);
+}
+
+.nav-glass--compact {
+  padding-block: 0.85rem !important;
+}
+
+.hero-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(circle at 0% 30%, rgba(138, 100, 255, 0.48), transparent 65%),
+    radial-gradient(circle at 90% 20%, rgba(123, 215, 255, 0.35), transparent 60%);
+  filter: blur(60px);
+  opacity: 0.9;
+  z-index: -2;
+  animation: hero-glow 18s ease-in-out infinite;
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  background: linear-gradient(135deg, rgba(138, 100, 255, 0.15), rgba(123, 215, 255, 0.08));
+  z-index: -1;
+  opacity: 0.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg::before {
+    animation: none;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 
@@ -152,4 +260,23 @@ ul, ol, li {
 
 .pinterest:hover svg {
   fill: #E60023;
+}
+
+.tour-highlight {
+  position: relative;
+  outline: 2px solid rgba(123, 97, 255, 0.75);
+  outline-offset: 6px;
+  border-radius: 18px;
+  transition: outline-color 0.3s ease;
+  z-index: 60;
+}
+
+.tour-highlight[data-tour-active="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(123, 97, 255, 0.35) 0%, rgba(123, 97, 255, 0) 60%);
+  pointer-events: none;
+  z-index: -1;
 }

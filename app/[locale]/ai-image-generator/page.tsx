@@ -7,6 +7,7 @@ import { queryGenerationByUser } from "@/models/generation";
 import FooterSection from "@/components/Footer/FooterSection";
 import { getTranslations } from "next-intl/server";
 import ImageGenerator from "@/components/Generator/ImageGenerator";
+import ErrorBoundary from "@/components/Shared/ErrorBoundary";
 import { languages, siteConfig } from "@/config/site";
 
 export async function generateMetadata({ params }: any) {
@@ -85,7 +86,9 @@ export default async function GenerationPage({
                 </div>
             </div>
 
-            <ImageGenerator user={session?.user} />
+            <ErrorBoundary>
+                <ImageGenerator user={session?.user} />
+            </ErrorBoundary>
             {/* <UploadSection user={session?.user} generated={generated || []} /> */}
             <FooterSection />
             <Toaster position="top-center" richColors />

@@ -6,7 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { getServerSession, type NextAuthOptions } from "next-auth";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 
 const providers: any[] = [
   GithubProvider({
@@ -80,9 +80,9 @@ export const providerMap = providers.map((provider) => {
   }
 });
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   // export const { handlers, signIn, signUp, signOut, auth } = NextAuth({
-  debug: process.env.NODE_ENV !== "production",
+  debug: false,
   pages: {
     signIn: "/sign-in",
     // signUp: '/sign-up',

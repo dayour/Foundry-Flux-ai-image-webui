@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export async function generateMetadata({ params }: any) {
     const t = await getTranslations("Playground");
     return {
-        title: "Flux AI Image SignUp - Free Image Generator | fluximage.org",
+    title: "Autogen Design SignUp - Free Image Generator | autogen.design",
         description: t("layoutDescription"),
         icons: {
             icon: "/favicon.ico",

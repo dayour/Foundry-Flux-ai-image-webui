@@ -20,7 +20,8 @@ export default function SignButtonGroup() {
       </Link> */}
       <Link
         href="/sign-in"
-        className="py-2 px-3 block items-center gap-x-2 text-sm font-medium rounded-xl border border-transparent bg-blue-400 text-black hover:bg-blue-500 transition disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:bg-blue-500"
+        className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary px-4 py-2 text-sm font-semibold text-midnight-950 transition hover:bg-primary-200 focus-visible:shadow-focus-ring"
+        aria-label="Sign in"
       >
         Sign in
       </Link>

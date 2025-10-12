@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Run tests (if present)
+        run: pnpm test --if-present
+
+      - name: Flux diagnostics (local helpers)
+        run: pnpm flux:diagnostics:local
+
+      - name: Flux diagnostics (remote Azure endpoints)
+        run: |
+          if [ -z "${AZURE_FLUX_11_PRO_ENDPOINT}" ] || [ -z "${AZURE_FLUX_11_PRO_API_KEY}" ] || [ -z "${AZURE_FLUX_KONTEXT_PRO_ENDPOINT}" ] || [ -z "${AZURE_FLUX_KONTEXT_PRO_API_KEY}" ]; then
+            echo "Skipping remote diagnostics; Azure secrets not configured.";
+            exit 0;
+          fi
+          pnpm flux:diagnostics:remote
+        env:
+          AZURE_FLUX_11_PRO_ENDPOINT: ${{ secrets['AZURE_FLUX_11_PRO_ENDPOINT'] }}
+          AZURE_FLUX_11_PRO_API_KEY: ${{ secrets['AZURE_FLUX_11_PRO_API_KEY'] }}
+          AZURE_FLUX_KONTEXT_PRO_ENDPOINT: ${{ secrets['AZURE_FLUX_KONTEXT_PRO_ENDPOINT'] }}
+          AZURE_FLUX_KONTEXT_PRO_API_KEY: ${{ secrets['AZURE_FLUX_KONTEXT_PRO_API_KEY'] }}

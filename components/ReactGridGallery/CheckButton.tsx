@@ -1,5 +1,5 @@
 import { useState } from "react";
-import * as styles from "./styles";
+import styles from "./ReactGridGallery.module.css";
 import { CheckButtonProps } from "./types";
 
 export const CheckButton = ({
@@ -12,7 +12,6 @@ export const CheckButton = ({
 }: CheckButtonProps): JSX.Element => {
   const [hover, setHover] = useState(false);
 
-  const circleStyle = { display: isSelected ? "block" : "none" };
   const fillColor = isSelected ? selectedColor : hover ? hoverColor : color;
 
   const handleMouseOver = () => setHover(true);
@@ -22,7 +21,7 @@ export const CheckButton = ({
     <div
       data-testid="grid-gallery-item_check-button"
       title="Select"
-      style={styles.checkButton({ isVisible })}
+      className={`${styles.checkButton} ${isVisible ? styles.checkButtonVisible : styles.checkButtonHidden}`}
       onClick={onClick}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
@@ -47,14 +46,20 @@ export const CheckButton = ({
         </radialGradient>
 
         <circle
-          style={circleStyle}
+          className={isSelected ? styles.circleVisible : styles.circleHidden}
           opacity=".26"
           fill="url(#shadow)"
           cx="12"
           cy="13.512"
           r="10.488"
         />
-        <circle style={circleStyle} fill="#FFF" cx="12" cy="12.2" r="8.292" />
+        <circle 
+          className={isSelected ? styles.circleVisible : styles.circleHidden} 
+          fill="#FFF" 
+          cx="12" 
+          cy="12.2" 
+          r="8.292" 
+        />
         <path d="M0 0h24v24H0z" fill="none" />
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
       </svg>

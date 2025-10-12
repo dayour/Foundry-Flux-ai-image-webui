@@ -1,8 +1,8 @@
 export const siteConfig: any = {
-  name: "Flux AI",
-  url: process.env.NEXTAUTH_URL || "https://fluximage.org",
-  domain: "fluximage.org",
-  mail: "support@fluximage.org",
+  name: "Autogen Design",
+  url: process.env.NEXTAUTH_URL || "http://localhost:3000",
+  domain: "autogen.design",
+  mail: "support@autogen.design",
   effectiveDate: "2024.8.9"
 };
 
@@ -15,4 +15,4 @@ export const languages = [
 
 export const locales = languages.map((lang) => lang.lang);
 
-export const localePrefix: LocalePrefix<typeof locales> = "as-needed";//"always";
+export const localePrefix = "as-needed" as const;//"always";

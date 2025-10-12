@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -37,23 +37,25 @@ export async function POST(request: Request) {
       const user = await prisma.user.create({
         data: { email, name: username, password: hashedPassword },
       });
-      delete user.password;
-      return NextResponse.json({ success: true, user }, { status: 201 });
-    } catch (e: any) {
+      const { password: _password, ...safeUser } = user;
+      return NextResponse.json({ success: true, user: safeUser }, { status: 201 });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to create user";
       return NextResponse.json(
         {
           success: false,
-          message: e.message,
+          message,
         },
         { status: 400 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unexpected error";
     console.error(error);
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 400 }
     );

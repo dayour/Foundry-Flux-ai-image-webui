@@ -1,80 +1,55 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { navigation } from "@/lib/navigation";
 import Brand from "@/components/Brand/Logo";
-import UserMenu from "@/components/User/UserMenu";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
-import { signOut } from "next-auth/react";
 import UserDropdown from "./UserDropdown";
 import SignButtonGroup from "@/components/Nav/SignButtonGroup";
 import MobileListButton from "@/components/Nav/MobileListButton";
 import DarkModeToggle from "@/components/Nav/DarkModeToggle";
 import LocaleSwitcher from "@/components/Nav/LocaleSwitcher";
 
-const CloseIcon = (
-  <svg
-    className="hs-collapse-open:block hidden flex-shrink-0 size-4"
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M18 6 6 18"></path>
-    <path d="m6 6 12 12"></path>
-  </svg>
-);
-
-const OpenListIcon = (
-  <svg
-    className="hs-collapse-open:hidden flex-shrink-0 size-4"
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="3" x2="21" y1="6" y2="6" />
-    <line x1="3" x2="21" y1="12" y2="12" />
-    <line x1="3" x2="21" y1="18" y2="18" />
-  </svg>
-);
-
 export default function Navbar({ user = null }: { user: any }) {
-  const [state, setState] = useState(false);
   const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 24);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   if (pathname === "/sign-up" || pathname === "/sign-in") return null;
 
   return (
     <>
       {/* HEADER */}
-      <header className="sticky flex flex-wrap md:justify-start md:flex-nowrap z-[52] w-full py-7">
+      <header
+        className={cn(
+          "sticky top-0 z-[52] w-full transition-all duration-300",
+          isScrolled ? "nav-glass nav-glass--compact shadow-[0_10px_30px_rgba(6,2,18,0.4)]" : "py-6"
+        )}
+      >
         <nav
-          className="relative max-w-7xl w-full flex flex-wrap justify-between basis-full items-center px-4 md:px-8 mx-auto"
+          className="relative mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 md:px-8"
           aria-label="Global"
         >
           {/* Logo */}
-          <div className="">
+          <div className="flex items-center">
             <Brand />
           </div>
           {/* End Logo */}
 
           {/* Button Group */}
-          <div className="hidden md:flex items-center gap-x-4 ms-auto py-1 md:ps-6 md:order-3">
+          <div className="hidden md:flex items-center gap-x-3 ms-auto py-1 md:ps-6 md:order-3">
             {/* Dark Mode Toggle */}
             <DarkModeToggle />
             {/* End Dark Mode Toggle */}
@@ -87,6 +62,13 @@ export default function Navbar({ user = null }: { user: any }) {
             ) : (
               <>
                 <LocaleSwitcher />
+                <Link
+                  href="/ai-image-generator"
+                  className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary-200 transition hover:bg-primary/20 focus-visible:shadow-focus-ring"
+                  aria-label="My images"
+                >
+                  My images
+                </Link>
                 <UserDropdown user={user} />
               </>
             )}
@@ -94,10 +76,18 @@ export default function Navbar({ user = null }: { user: any }) {
           {/* End Button Group */}
 
           {/* Mobile Button */}
-          <div className="md:hidden flex gap-x-4">
+          <div className="md:hidden flex items-center gap-x-2">
             {/* Dark Mode Toggle For Mobile */}
             <DarkModeToggle />
             {/* End Dark Mode Toggle For Mobile */}
+            {user ? (
+              <Link
+                href="/ai-image-generator"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary-200 focus-visible:shadow-focus-ring"
+              >
+                My images
+              </Link>
+            ) : null}
             <UserDropdown user={user} />
             <MobileListButton />
           </div>
@@ -114,13 +104,14 @@ export default function Navbar({ user = null }: { user: any }) {
                   <div key={idx}>
                     <a
                       className={cn(
-                        "inline-block text-black dark:text-white",
+                        "inline-flex items-center rounded-lg px-2 py-1 text-sm font-medium text-white/75 transition focus-visible:shadow-focus-ring",
                         pathname === item.href
-                          ? "relative before:absolute before:bottom-0.5 before:start-0 before:-z-[1] before:w-full before:h-1 before:bg-blue-400"
-                          : "hover:text-gray-600 dark:hover:text-neutral-300"
+                          ? "text-primary-200"
+                          : "hover:text-white"
                       )}
                       href={item.href}
                       title={item.title}
+                      aria-current={pathname === item.href ? 'page' : undefined}
                     >
                       {item.title}
                     </a>
@@ -137,6 +128,12 @@ export default function Navbar({ user = null }: { user: any }) {
               ) : (
                 <div className="flex items-center gap-x-2 md:hidden">
                   <LocaleSwitcher />
+                  <Link
+                    href="/ai-image-generator"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary-200 focus-visible:shadow-focus-ring"
+                  >
+                    My images
+                  </Link>
                 </div>
               )}
             </div>

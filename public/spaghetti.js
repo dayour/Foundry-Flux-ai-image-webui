@@ -1,12 +1,30 @@
 // On page load or when changing themes, best to add inline in `head` to avoid FOUC
-if (
-    localStorage.theme === "dark" ||
-    (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-) {
-    document.documentElement.classList.add("dark");
-} else {
-    document.documentElement.classList.remove("dark");
+// Only mutate the DOM if the desired theme differs from the currently
+// rendered state. This prevents a hydration mismatch when the server has
+// already rendered `class="dark"` on <html>.
+try {
+    const prefersDark =
+        typeof window !== "undefined" &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    const desiredTheme = (() => {
+        if (localStorage.theme === "dark") return "dark";
+        if (localStorage.theme === "light") return "light";
+        return prefersDark ? "dark" : "light";
+    })();
+
+    const hasDark = document.documentElement.classList.contains("dark");
+    // For a unified server-first dark experience we avoid removing the
+    // `dark` class on initial load — removing it here would create a
+    // hydration mismatch if the server rendered `class="dark"`.
+    if (desiredTheme === "dark" && !hasDark) {
+        document.documentElement.classList.add("dark");
+    }
+} catch (e) {
+    // If anything goes wrong (e.g., localStorage not available), do nothing
+    // to avoid causing hydration mismatches or runtime errors in the page.
+    console.warn("theme init skipped:", e);
 }
 
 // Expose helper functions so other scripts can change the theme without

@@ -8,10 +8,11 @@ import FooterSection from "@/components/Footer/FooterSection";
 import { getTranslations } from "next-intl/server";
 import ImageGenerator from "@/components/Generator/ImageGenerator";
 import { languages, siteConfig } from "@/config/site";
-import TestimonialsExploreSection from "@/components/Testimonials/TestimonialsExploreSection";
+
 import { Gallery } from "react-grid-gallery";
 import { getGenerationList } from "@/services/handleImage";
 import ImageGallery from "@/components/Generator/ImageGallery";
+import ErrorBoundary from "@/components/Shared/ErrorBoundary";
 import EmptyGallery from "@/components/Generator/EmptyGallery";
 
 export async function generateMetadata({ params }: any) {
@@ -95,18 +96,20 @@ export default async function ExplorePage({
             {!generationList.length ? (
                 <EmptyGallery />
             ) : (
-                <ImageGallery
-                    generationList={generationList}
-                    urlPrefix="/explore-image"
-                    pageNo={page[0]}
-                    total={total}
-                    pageSize={pageSize}
-                />
+                <ErrorBoundary>
+                    <ImageGallery
+                        generationList={generationList}
+                        urlPrefix="/explore-image"
+                        pageNo={page[0]}
+                        total={total}
+                        pageSize={pageSize}
+                    />
+                </ErrorBoundary>
             )}
 
             {/* <Gallery images={generationList} /> */}
             {/* <ImageGenerator user={session?.user} /> */}
-            <TestimonialsExploreSection />
+
 
             <FooterSection />
             <Toaster position="top-center" richColors />

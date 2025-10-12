@@ -116,7 +116,7 @@ export async function getGenerationItem(generationId: string) {
     }
 
     if (!generation.id) {
-        return Promise.reject(new Error("Not Found Flux Image Result."));
+        return Promise.reject(new Error("Not Found Autogen result."));
     }
 
     console.info("generation:", generation);

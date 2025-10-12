@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: any) {
     const t = await getTranslations("Home");
 
     return {
-        title: "Flux AI Image Generator - Free Image Generator | fluximage.org",
+    title: "Autogen Design - Free Image Generator | autogen.design",
         description: t("layoutDescription"),
         icons: {
             icon: "/favicon.ico",
@@ -82,15 +82,12 @@ export default async function RootLayout({
     const messages = await getMessages();
 
     return (
-        <html lang={locale} className="dark" suppressHydrationWarning>
-            {/* <Head> */}
-            {/* </Head> */}
-            <body className={cn(`dark:bg-neutral-800`, inter.className)}>
-                <Script
-                    src="/themeSwitcher.js"
-                    strategy="beforeInteractive"
-                ></Script>
-                <Script src="/spaghetti.js"></Script>
+        // Force a single unified dark appearance on both server and client by
+        // rendering the `dark` class on the <html> element. This makes the UI
+        // look identical regardless of any client-side theme toggles.
+        <html lang={locale} className="dark">
+            <head />
+            <body className={cn(`bg-neutral-900`, inter.className)}>
                 <NextIntlClientProvider messages={messages}>
                     <AppContextProvider user={user}>
                     {/* Gradients */}

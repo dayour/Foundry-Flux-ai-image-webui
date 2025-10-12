@@ -5,7 +5,7 @@ import createMDX from "@next/mdx";
 // import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 // const withMDX = require('@next/mdx')()
 
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const withMDX = createMDX({
     extension: /\.mdx?$/,
     options: {
