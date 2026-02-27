@@ -27,7 +27,7 @@
     "@tailwindcss/typography": "^0.5.13",
     "@types/mdx": "^2.0.13",
     "await-to-js": "^3.0.0",
-    "axios": "^1.7.2",
+    "axios": "^1.13.5",
   "bcryptjs": "^2.4.3",
     "clipboard": "^2.0.11",
     "clsx": "^2.1.1",
