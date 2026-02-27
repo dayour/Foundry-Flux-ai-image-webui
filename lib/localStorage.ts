@@ -19,8 +19,15 @@ export async function uploadFileLocally(params: LocalUploadParams): Promise<stri
     const { FileName, fileBuffer, objectKey } = params;
 
     try {
+        // Sanitize objectKey to prevent path traversal
+        const sanitizedKey = path.normalize(objectKey).replace(/^(\.\.\/)+/, "");
+        if (sanitizedKey.includes("..") || path.isAbsolute(sanitizedKey)) {
+            console.error("[LOCAL STORAGE] Rejected path traversal attempt:", objectKey);
+            return null;
+        }
+
         // Construct the full file path
-        const fullPath = path.join(LOCAL_STORAGE_BASE, objectKey);
+        const fullPath = path.join(LOCAL_STORAGE_BASE, sanitizedKey);
         const directory = path.dirname(fullPath);
 
         // Ensure directory exists
@@ -45,7 +52,12 @@ export async function uploadFileLocally(params: LocalUploadParams): Promise<stri
  */
 export async function deleteFileLocally(objectKey: string): Promise<boolean> {
     try {
-        const fullPath = path.join(LOCAL_STORAGE_BASE, objectKey);
+        const sanitizedKey = path.normalize(objectKey).replace(/^(\.\.\/)+/, "");
+        if (sanitizedKey.includes("..") || path.isAbsolute(sanitizedKey)) {
+            console.error("[LOCAL STORAGE] Rejected path traversal attempt:", objectKey);
+            return false;
+        }
+        const fullPath = path.join(LOCAL_STORAGE_BASE, sanitizedKey);
         await fs.unlink(fullPath);
         console.log("[LOCAL STORAGE] File deleted successfully:", objectKey);
         return true;
@@ -60,7 +72,9 @@ export async function deleteFileLocally(objectKey: string): Promise<boolean> {
  */
 export async function fileExistsLocally(objectKey: string): Promise<boolean> {
     try {
-        const fullPath = path.join(LOCAL_STORAGE_BASE, objectKey);
+        const sanitizedKey = path.normalize(objectKey).replace(/^(\.\.\/)+/, "");
+        if (sanitizedKey.includes("..") || path.isAbsolute(sanitizedKey)) return false;
+        const fullPath = path.join(LOCAL_STORAGE_BASE, sanitizedKey);
         await fs.access(fullPath);
         return true;
     } catch {
