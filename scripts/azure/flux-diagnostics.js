@@ -140,6 +140,7 @@ async function runRemoteDiagnostics() {
     if (verbose) {
       console.log("Request Body:");
       console.log(JSON.stringify(test.request, null, 2));
+      // NOTE: API key is sent via header only, not logged here
     }
 
     try {
@@ -148,8 +149,11 @@ async function runRemoteDiagnostics() {
     } catch (error) {
       console.error(`${CROSS} ${test.model}: ${error.message}`);
       if (error.responseBody && verbose) {
-        console.error("Response Body:");
-        console.error(error.responseBody);
+        console.error("Response Body (sensitive values redacted):");
+        const sanitized = typeof error.responseBody === 'string'
+          ? error.responseBody.replace(/[a-zA-Z0-9]{32,}/g, '[REDACTED]')
+          : JSON.stringify(error.responseBody);
+        console.error(sanitized);
       }
       results.push({
         name: `${test.model} API call`,
@@ -168,7 +172,7 @@ async function exerciseEndpoint(endpoint, apiKey, payload, model) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "api-key": apiKey,
+      "api-key": apiKey,  // Sent via header, never logged in clear text
     },
     body: JSON.stringify(payload),
   });
